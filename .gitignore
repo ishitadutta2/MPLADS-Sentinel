@@ -1,0 +1,53 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+
+# --- Runtime / generated database & logs ---
+# Regenerated automatically on first run from the CSVs in data/ — see
+# sentinel/db.py (load_csvs_into_db). Committing this would also mean
+# committing a stale, possibly-inconsistent copy of what's derived data.
+data/sentinel.db
+data/sentinel.db-journal
+data/sentinel.db-wal
+data/sentinel.db-shm
+# Tamper-evident audit log — this is a record of THIS machine's runtime
+# activity (logins, scoring runs, officer verdicts), not seed data. A
+# fresh chain starts automatically on first run.
+data/audit_chain.jsonl
+
+# --- Large generated binary assets ---
+# Deterministically regenerated from the (small, tracked) CSVs in data/ —
+# see README "Quickstart" step 2:
+#   python data/generate_photos.py
+#   python data/generate_sanction_orders.py
+# Excluded to keep the repo itself small and fast to clone; not excluded
+# because they're secret or user-specific.
+sample_photos/
+sample_documents/
+
+# --- Real, user-uploaded runtime data ---
+# Evidence photos someone actually uploaded through the running app
+# (Photo Verification -> Upload & Check a Photo). This is real user data
+# generated at runtime, not demo/seed content — never commit it.
+uploaded_evidence/
+
+# --- Secrets ---
+# If you configure GOOGLE_VISION_API_KEY or similar via Streamlit
+# secrets rather than an environment variable, it lives here — never
+# commit real credentials.
+.streamlit/secrets.toml
+
+# --- OS / editor cruft ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

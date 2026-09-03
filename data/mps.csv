@@ -1,0 +1,26 @@
+mp_id,mp_name,constituency,state,party,term_start,fund_allocated_total
+MP001,Ramesh Mishra,Maharashtra-18,Maharashtra,Party B,2024-06-01,250000000
+MP002,Vikram Mishra,West-7,West Bengal,Independent,2024-06-01,250000000
+MP003,Ravi Singh,Maharashtra-3,Maharashtra,Party A,2024-06-01,250000000
+MP004,Rajesh Reddy,Maharashtra-33,Maharashtra,Independent,2024-06-01,250000000
+MP005,Shalini Reddy,Uttar-35,Uttar Pradesh,Party D,2024-06-01,250000000
+MP006,Ashok Gupta,West-18,West Bengal,Party A,2024-06-01,250000000
+MP007,Prakash Singh,Bihar-22,Bihar,Party C,2024-06-01,250000000
+MP008,Rajesh Chauhan,Bihar-22,Bihar,Party A,2024-06-01,250000000
+MP009,Sanjay Verma,Maharashtra-23,Maharashtra,Party C,2024-06-01,250000000
+MP010,Manoj Chauhan,Odisha-3,Odisha,Party D,2024-06-01,250000000
+MP011,Priya Menon,Gujarat-25,Gujarat,Party A,2024-06-01,250000000
+MP012,Deepa Joshi,Gujarat-40,Gujarat,Party C,2024-06-01,250000000
+MP013,Rajesh Mishra,Odisha-5,Odisha,Party A,2024-06-01,250000000
+MP014,Dinesh Nair,West-6,West Bengal,Party B,2024-06-01,250000000
+MP015,Sanjay Nair,Maharashtra-30,Maharashtra,Party C,2024-06-01,250000000
+MP016,Neha Iyer,Bihar-14,Bihar,Party C,2024-06-01,250000000
+MP017,Geeta Rao,Maharashtra-11,Maharashtra,Independent,2024-06-01,250000000
+MP018,Sunita Yadav,West-25,West Bengal,Party C,2024-06-01,250000000
+MP019,Kavita Rao,Gujarat-21,Gujarat,Party A,2024-06-01,250000000
+MP020,Suresh Chauhan,West-21,West Bengal,Party D,2024-06-01,250000000
+MP021,Anita Reddy,Tamil-37,Tamil Nadu,Party C,2024-06-01,250000000
+MP022,Naresh Yadav,West-26,West Bengal,Party D,2024-06-01,250000000
+MP023,Manoj Patel,Bihar-16,Bihar,Independent,2024-06-01,250000000
+MP024,Manoj Mishra,Gujarat-38,Gujarat,Party D,2024-06-01,250000000
+MP025,Sanjay Iyer,Odisha-15,Odisha,Party B,2024-06-01,250000000

@@ -1,0 +1,23 @@
+# --- Core data / ML (all real, tested against this repo's synthetic dataset) ---
+numpy>=1.26
+pandas>=2.0
+scikit-learn>=1.4
+networkx>=3.2
+opencv-python-headless>=4.9
+pytesseract>=0.3.10   # requires the tesseract-ocr system binary (apt install tesseract-ocr) to actually be installed
+Pillow>=10.0
+scipy>=1.11
+requests>=2.31        # used by sentinel/engines/reverse_image_search.py (inert without a GOOGLE_VISION_API_KEY — see that module's docstring)
+
+# --- Dashboard ---
+streamlit>=1.36
+plotly>=5.20
+
+# --- Dev / testing ---
+pytest>=8.0
+
+# --- Optional production upgrade path (NOT required to run this repo) ---
+# See README > "Production upgrade path" before installing these:
+# torch, transformers        # for swapping in a real CLIP visual-similarity model — sentinel/engines/real_world_vision.py
+# sqlalchemy, psycopg2-binary  # for a PostgreSQL/PostGIS backend instead of SQLite
+# pymupdf, spacy              # for real OCR/NLP document extraction from scanned PDFs

@@ -1,0 +1,69 @@
+report_id,project_id,complaint_type,report_date,citizen_name_masked,status
+CIT00001,PRJ00013,Poor quality of construction material,2026-08-19,Citizen_1616,Resolved
+CIT00002,PRJ00039,Poor quality of construction material,2026-08-11,Citizen_9190,Resolved
+CIT00003,PRJ00049,Work not started despite funds released,2026-08-19,Citizen_5934,Under Review
+CIT00004,PRJ00058,No such facility exists at stated location,2026-06-10,Citizen_1074,Resolved
+CIT00005,PRJ00080,Poor quality of construction material,2026-07-28,Citizen_4144,Open
+CIT00006,PRJ00121,Overpricing compared to similar local works,2026-08-26,Citizen_2567,Resolved
+CIT00007,PRJ00127,Work incomplete but marked complete,2026-08-03,Citizen_9842,Resolved
+CIT00008,PRJ00143,Poor quality of construction material,2026-05-31,Citizen_8605,Resolved
+CIT00009,PRJ00152,Poor quality of construction material,2026-06-06,Citizen_5528,Open
+CIT00010,PRJ00153,Poor quality of construction material,2024-10-21,Citizen_2846,Open
+CIT00011,PRJ00156,No such facility exists at stated location,2025-06-04,Citizen_9151,Open
+CIT00012,PRJ00162,Poor quality of construction material,2026-06-11,Citizen_1706,Open
+CIT00013,PRJ00174,Work incomplete but marked complete,2026-06-02,Citizen_5670,Open
+CIT00014,PRJ00179,No such facility exists at stated location,2026-07-15,Citizen_5118,Under Review
+CIT00015,PRJ00183,Overpricing compared to similar local works,2026-08-14,Citizen_8424,Open
+CIT00016,PRJ00192,Work not started despite funds released,2026-07-14,Citizen_1859,Resolved
+CIT00017,PRJ00211,Poor quality of construction material,2026-07-13,Citizen_3589,Open
+CIT00018,PRJ00227,No such facility exists at stated location,2026-07-23,Citizen_9436,Open
+CIT00019,PRJ00231,Work not started despite funds released,2025-12-23,Citizen_4855,Resolved
+CIT00020,PRJ00249,No such facility exists at stated location,2025-06-08,Citizen_6340,Under Review
+CIT00021,PRJ00256,Poor quality of construction material,2025-10-26,Citizen_6336,Open
+CIT00022,PRJ00299,Work not started despite funds released,2025-03-29,Citizen_6343,Open
+CIT00023,PRJ00330,Work not started despite funds released,2026-08-04,Citizen_4884,Resolved
+CIT00024,PRJ00335,No such facility exists at stated location,2026-03-13,Citizen_4276,Under Review
+CIT00025,PRJ00364,Poor quality of construction material,2026-06-06,Citizen_2204,Under Review
+CIT00026,PRJ00373,Overpricing compared to similar local works,2026-06-12,Citizen_8936,Open
+CIT00027,PRJ00408,No such facility exists at stated location,2026-04-19,Citizen_3374,Open
+CIT00028,PRJ00412,Overpricing compared to similar local works,2026-05-20,Citizen_8454,Open
+CIT00029,PRJ00479,No such facility exists at stated location,2024-11-09,Citizen_7119,Open
+CIT00030,PRJ00480,No such facility exists at stated location,2026-03-10,Citizen_4181,Resolved
+CIT00031,PRJ00493,Work incomplete but marked complete,2026-06-19,Citizen_5418,Open
+CIT00032,PRJ00508,Work incomplete but marked complete,2026-08-16,Citizen_3084,Open
+CIT00033,PRJ00523,Overpricing compared to similar local works,2026-08-09,Citizen_1977,Under Review
+CIT00034,PRJ00548,Poor quality of construction material,2026-07-24,Citizen_2820,Under Review
+CIT00035,PRJ00557,No such facility exists at stated location,2026-08-15,Citizen_7852,Open
+CIT00036,PRJ00606,Work incomplete but marked complete,2026-07-05,Citizen_4602,Under Review
+CIT00037,PRJ00607,Overpricing compared to similar local works,2024-12-21,Citizen_3568,Resolved
+CIT00038,PRJ00619,Overpricing compared to similar local works,2026-05-05,Citizen_3784,Resolved
+CIT00039,PRJ00620,Overpricing compared to similar local works,2025-11-28,Citizen_4763,Open
+CIT00040,PRJ00632,No such facility exists at stated location,2025-01-02,Citizen_9548,Under Review
+CIT00041,PRJ00634,Poor quality of construction material,2026-05-04,Citizen_8757,Under Review
+CIT00042,PRJ00637,Work incomplete but marked complete,2026-06-19,Citizen_1237,Resolved
+CIT00043,PRJ00646,No such facility exists at stated location,2025-11-10,Citizen_5041,Open
+CIT00044,PRJ00649,Work incomplete but marked complete,2026-05-28,Citizen_8114,Resolved
+CIT00045,PRJ00652,Poor quality of construction material,2026-08-24,Citizen_3440,Resolved
+CIT00046,PRJ00662,Work not started despite funds released,2026-02-16,Citizen_7844,Open
+CIT00047,PRJ00691,Work not started despite funds released,2025-10-30,Citizen_8711,Resolved
+CIT00048,PRJ00700,Overpricing compared to similar local works,2025-08-01,Citizen_1550,Under Review
+CIT00049,PRJ00701,Overpricing compared to similar local works,2026-07-25,Citizen_7460,Under Review
+CIT00050,PRJ00711,Work not started despite funds released,2026-03-20,Citizen_8412,Under Review
+CIT00051,PRJ00712,Poor quality of construction material,2026-04-17,Citizen_2361,Resolved
+CIT00052,PRJ00713,Work not started despite funds released,2026-08-23,Citizen_7662,Open
+CIT00053,PRJ00716,Poor quality of construction material,2025-05-29,Citizen_6872,Under Review
+CIT00054,PRJ00727,Poor quality of construction material,2024-09-23,Citizen_2486,Open
+CIT00055,PRJ00748,No such facility exists at stated location,2026-08-27,Citizen_5994,Open
+CIT00056,PRJ00755,No such facility exists at stated location,2025-07-27,Citizen_1399,Under Review
+CIT00057,PRJ00770,No such facility exists at stated location,2026-08-05,Citizen_3271,Resolved
+CIT00058,PRJ00854,No such facility exists at stated location,2025-07-05,Citizen_4030,Under Review
+CIT00059,PRJ00879,No such facility exists at stated location,2026-04-28,Citizen_1022,Resolved
+CIT00060,PRJ00880,Work not started despite funds released,2025-05-19,Citizen_7305,Resolved
+CIT00061,PRJ00885,Work incomplete but marked complete,2026-03-30,Citizen_9698,Open
+CIT00062,PRJ00894,Work incomplete but marked complete,2026-07-24,Citizen_7977,Under Review
+CIT00063,PRJ00909,Overpricing compared to similar local works,2025-04-08,Citizen_9887,Resolved
+CIT00064,PRJ00918,Poor quality of construction material,2026-04-02,Citizen_2326,Resolved
+CIT00065,PRJ00922,Work incomplete but marked complete,2026-07-07,Citizen_1898,Resolved
+CIT00066,PRJ00940,Work incomplete but marked complete,2026-04-02,Citizen_1844,Open
+CIT00067,PRJ00976,No such facility exists at stated location,2026-07-19,Citizen_6989,Under Review
+CIT00068,PRJ01000,Overpricing compared to similar local works,2026-02-08,Citizen_1669,Under Review
