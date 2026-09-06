@@ -254,6 +254,22 @@ hidden in the UI; see `TestAuthAndRBAC` in the test suite.
 | **Contractor Network** | Interactive graph of suspected cartel clusters *(synthetic data)* |
 | **Citizen Reporting** | Public complaint intake + correlation with risk scores *(synthetic data)* |
 | **Audit Trail** | Live hash-chain viewer with an integrity-verification button *(synthetic data)* |
+| **Work Tracker** | Writes, not just reads: MPs recommend new works, District Officers/Central Admin advance them through the real recommend → sanction → execute → pay → complete pipeline, live |
+
+### Multi-language UI
+
+A 🌐 language switcher lives in the sidebar (English, हिन्दी, বাংলা, தமிழ்,
+తెలుగు, मराठी, ગુજરાતી — see `app/i18n.py`). It translates the app's own
+interface — navigation content, buttons, labels, chart axes, table
+headers — consistently across all nine pages. It deliberately does **not**
+translate: data people typed in (project descriptions, names — same as
+the real eSAKSHI portal wouldn't retranslate a citizen's own words), a
+few dense technical explainer asides (the eSAKSHI process writeup, the
+hash-chain internals), or Streamlit's own native sidebar page-nav labels
+(a platform limitation, not an oversight — those come from filenames and
+aren't restyleable without fragile DOM hacking this project avoids).
+Translations are a solid first pass, not yet reviewed by native speakers
+of each language.
 
 ---
 
@@ -316,9 +332,10 @@ mplads_sentinel/
 │   │   └── esakshi_ingestion.py      # real eSAKSHI export ingestion (validated, idempotent)
 │   └── utils/geo.py            # Haversine distance
 ├── app/
-│   ├── Home.py                 # Streamlit entry point (login-gated)
+│   ├── Home.py                  # Streamlit entry point (login-gated)
 │   ├── common.py                # shared caching/styling/auth helpers
-│   └── pages/                  # the 8 dashboard pages
+│   ├── i18n.py                  # 7-language UI translation layer + language switcher
+│   └── pages/                   # the 9 dashboard pages, including Work Tracker (writes, not just reads)
 ├── tests/test_engines.py       # full engine + auth + ingestion + audit-chain test suite (33 tests)
 └── requirements.txt
 ```

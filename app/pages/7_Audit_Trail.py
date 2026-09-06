@@ -11,31 +11,27 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import pandas as pd
 import streamlit as st
 
-from common import inject_base_style, require_login, require_role, show_user_badge
+from common import inject_base_style, require_login, require_role, show_user_badge, page_header
 from sentinel.audit.hash_chain import read_chain, verify_chain
+from i18n import t
 
 st.set_page_config(page_title="Audit Trail — MPLADS Sentinel", page_icon="🔗", layout="wide")
 inject_base_style()
 user = require_login()
 show_user_badge()
 require_role(user, ["district_officer", "central_admin"])
-st.title("🔗 Tamper-Evident Audit Trail")
-st.caption(
-    "Every scoring run and every officer verdict is appended to a SHA-256 hash chain — each entry embeds "
-    "the hash of the one before it. Editing or deleting a past entry breaks every hash after it, making "
-    "silent tampering with the audit record detectable."
-)
+page_header("🔗", t("audit_title"), t("audit_sub"))
 
 entries = read_chain()
 is_valid, broken_at = verify_chain()
 
 c1, c2 = st.columns(2)
-c1.metric("Total Logged Events", len(entries))
+c1.metric(t("kpi_total_logged_events"), len(entries))
 with c2:
     if is_valid:
-        st.success("✅ Chain integrity verified — no tampering detected.")
+        st.success(t("chain_verified_success"))
     else:
-        st.error(f"⚠️ Chain integrity FAILED at entry #{broken_at}. The log may have been tampered with.")
+        st.error(t("chain_failed_error", n=broken_at))
 
 st.divider()
 
@@ -44,11 +40,13 @@ if entries:
     view = view[["timestamp", "event_type", "project_id", "actor", "details", "entry_hash"]]
     view["entry_hash"] = view["entry_hash"].str[:16] + "…"
     view["details"] = view["details"].apply(lambda d: str(d))
-    st.dataframe(view.sort_values("timestamp", ascending=False), width='stretch', hide_index=True)
+    view.columns = [t("col_timestamp"), t("col_event_type"), t("col_project_id"), t("col_actor"),
+                     t("col_details"), t("col_entry_hash")]
+    st.dataframe(view.sort_values(t("col_timestamp"), ascending=False), width='stretch', hide_index=True)
 else:
-    st.info("No events logged yet — run the scoring pipeline or submit an officer review to generate audit entries.")
+    st.info(t("no_audit_events_yet"))
 
-with st.expander("How the hash chain works"):
+with st.expander(t("how_hash_chain_works")):
     st.markdown("""
 Each entry is a JSON record:
 ```
@@ -61,4 +59,6 @@ To verify: walk the chain from the start, recompute each entry's hash, and check
 stored `entry_hash` **and** the next entry's `prev_hash`. If even one character in one historical entry
 changes, every hash after it stops matching — the tampering is immediately visible without needing a
 central authority or blockchain network, just this log file and this verification function.
+
+*(This technical explainer is currently only available in English.)*
 """)

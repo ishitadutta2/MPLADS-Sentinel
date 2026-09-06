@@ -12,6 +12,7 @@ from sentinel.db import read_table, load_csvs_into_db
 from sentinel.services.scoring_pipeline import run_full_pipeline
 from sentinel.config import DATA_DIR, PHOTO_DIR
 from sentinel.auth import authenticate, seed_demo_users, scoped_query
+from i18n import t, language_switcher_sidebar
 
 
 @st.cache_resource(show_spinner=False)
@@ -35,44 +36,65 @@ def require_login() -> dict:
         theme_toggle_ui()
         left, mid, right = st.columns([1, 1.3, 1])
         with mid:
+            accent = get_palette()["accent"]
             st.markdown(
-                """
-                <div style="text-align:center; margin-top:1.2rem; margin-bottom:0.6rem;">
-                  <div style="font-size:2.6rem; line-height:1;">🛡️</div>
-                  <h1 class="sentinel-hero-title" style="margin:.3rem 0 0;">MPLADS Sentinel</h1>
-                  <p style="opacity:.72; margin-top:.15rem; font-size:.95rem;">
-                    Sign in to the AI-assisted transparency &amp; fraud-detection dashboard
+                f"""
+                <div style="text-align:center; margin-top:1.2rem; margin-bottom:1.3rem;">
+                  <div style="font-size:2.2rem; line-height:1; opacity:.85;">🛡️</div>
+                  <h1 class="sentinel-hero-title" style="margin:.35rem 0 0;">MPLADS Sentinel</h1>
+                  <div style="width:40px; height:3px; background:{accent};
+                              margin:.55rem auto 0; border-radius:2px;"></div>
+                  <p style="opacity:.72; margin-top:.65rem; font-size:.95rem;">
+                    {t('login_tagline')}
                   </p>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
-            st.caption(
-                "This is a hackathon demo — accounts and passwords below are intentionally simple and "
-                "shown in the open rather than hidden, since pretending this is production-hardened would "
-                "be dishonest. See README 'Demo login credentials' for the same list."
-            )
-            with st.expander("🔑 Demo credentials (click to expand)"):
-                st.code(
-                    f"Central Admin (sees everything):\n"
-                    f"  username: {demo_creds['admin'][0]}   password: {demo_creds['admin'][1]}\n\n"
-                    f"MP office (scoped to {demo_creds['mp'][2]} only):\n"
-                    f"  username: {demo_creds['mp'][0]}   password: {demo_creds['mp'][1]}\n\n"
-                    f"District Officer (scoped to {demo_creds['district_officer'][2]} only):\n"
-                    f"  username: {demo_creds['district_officer'][0]}   password: {demo_creds['district_officer'][1]}",
-                    language=None,
+
+            tab_signin, tab_demo = st.tabs([t("sign_in"), t("demo_accounts")])
+
+            with tab_signin:
+                with st.form("login_form"):
+                    username = st.text_input(t("username_lbl"))
+                    password = st.text_input(t("password_lbl"), type="password")
+                    submitted = st.form_submit_button(t("sign_in_btn"), width='stretch')
+                    if submitted:
+                        user = authenticate(username, password)
+                        if user is None:
+                            st.error("Invalid username or password.")
+                        else:
+                            st.session_state.user = user
+                            st.rerun()
+
+            with tab_demo:
+                st.markdown(
+                    "<p class='sentinel-cred-note'>This is a hackathon demo — the accounts below are "
+                    "intentionally simple and shown in the open rather than hidden, since pretending "
+                    "this is production-hardened would be dishonest. Pick a role and copy its username "
+                    "and password into the Sign in tab.</p>",
+                    unsafe_allow_html=True,
                 )
-            with st.form("login_form"):
-                username = st.text_input("Username")
-                password = st.text_input("Password", type="password")
-                submitted = st.form_submit_button("Sign in →", width='stretch')
-                if submitted:
-                    user = authenticate(username, password)
-                    if user is None:
-                        st.error("Invalid username or password.")
-                    else:
-                        st.session_state.user = user
-                        st.rerun()
+                roles = [
+                    ("👑", t("central_admin"), "Sees every project nationally",
+                     demo_creds["admin"][0], demo_creds["admin"][1]),
+                    ("🧑‍💼", t("mp_office"), f"Scoped to {demo_creds['mp'][2]} only",
+                     demo_creds["mp"][0], demo_creds["mp"][1]),
+                    ("🗂️", t("district_officer"), f"Scoped to {demo_creds['district_officer'][2]} only",
+                     demo_creds["district_officer"][0], demo_creds["district_officer"][1]),
+                ]
+                cards_html = "".join(
+                    '<div class="sentinel-cred-card">'
+                    f'<div class="role-row"><span class="role-icon">{icon}</span>{role}</div>'
+                    f'<div class="scope">{scope}</div>'
+                    f'<div class="cred-row"><span class="sentinel-cred-label">{t("username_lbl")}</span>'
+                    f'<span class="sentinel-cred-value">{u}</span></div>'
+                    f'<div class="cred-row"><span class="sentinel-cred-label">{t("password_lbl")}</span>'
+                    f'<span class="sentinel-cred-value">{p}</span></div>'
+                    '</div>'
+                    for icon, role, scope, u, p in roles
+                )
+                st.markdown(f'<div class="sentinel-cred-grid">{cards_html}</div>', unsafe_allow_html=True)
         st.stop()
 
     return st.session_state.user
@@ -80,12 +102,17 @@ def require_login() -> dict:
 
 def sidebar_brand():
     """Small branded header block shown at the top of the sidebar (below
-    Streamlit's auto-generated page nav, which always renders first)."""
-    st.sidebar.markdown(
-        """
+    Streamlit's auto-generated page nav, which always renders first).
+    Uses the ambient `st` rather than `st.sidebar` so it correctly nests
+    inside theme_toggle_ui()'s st.sidebar.container() — calling
+    st.sidebar.xxx explicitly here would instead escape that container
+    and land directly in the sidebar root, breaking the scroll-split
+    described in the CSS."""
+    st.markdown(
+        f"""
         <div class="sentinel-brand">
           <div class="brand-title">🛡️&nbsp; MPLADS Sentinel</div>
-          <div class="brand-sub">AI-assisted fund transparency</div>
+          <div class="brand-sub">{t('brand_tagline')}</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -93,21 +120,32 @@ def sidebar_brand():
 
 
 def theme_toggle_ui():
-    """Renders the sidebar brand block plus a light/dark toggle, and keeps
-    st.session_state.theme in sync with it. Safe to call once per page
-    render (require_login() calls it pre-login, show_user_badge() calls it
-    post-login — never both in the same script run)."""
-    sidebar_brand()
-    current = get_theme()
-    is_dark = st.sidebar.toggle(
-        "🌙 Dark mode", value=(current == "dark"), key="_theme_toggle_switch",
-        help="Switch between light and dark appearance.",
-    )
-    new_theme = "dark" if is_dark else "light"
-    if new_theme != current:
-        st.session_state.theme = new_theme
-        st.rerun()
-    st.sidebar.markdown("<div style='margin-bottom:.4rem;'></div>", unsafe_allow_html=True)
+    """Renders the sidebar brand block plus a light/dark toggle and the
+    language switcher, inside an explicit st.sidebar.container() — this
+    becomes the FIRST of exactly two sibling containers under the
+    sidebar's "user content" area (the second, added by show_user_badge()
+    right after this returns, holds the profile card + log-out button).
+    That's not cosmetic: the CSS in _CSS_TEMPLATE targets these two
+    containers by position (first-of-type / last-of-type) to make this
+    one scroll independently while the profile+logout container below it
+    stays pinned to the bottom of the sidebar — see the "Sidebar
+    scroll-split" comment in the CSS for the full mechanism.
+
+    Keeps st.session_state.theme in sync. Safe to call once per page
+    render (require_login() calls it pre-login, show_user_badge() calls
+    it post-login — never both in the same script run)."""
+    with st.sidebar.container():
+        sidebar_brand()
+        current = get_theme()
+        is_dark = st.toggle(
+            f"🌙 {t('dark_mode')}", value=(current == "dark"), key="_theme_toggle_switch",
+            help="Switch between light and dark appearance.",
+        )
+        new_theme = "dark" if is_dark else "light"
+        if new_theme != current:
+            st.session_state.theme = new_theme
+            st.rerun()
+        language_switcher_sidebar()
 
 
 def show_user_badge():
@@ -115,24 +153,46 @@ def show_user_badge():
     user = st.session_state.get("user")
     if not user:
         return
-    role_label = {"mp": "MP Office", "district_officer": "District Officer", "central_admin": "Central Admin"}
+    role_label = {"mp": t("mp_office"), "district_officer": t("district_officer"), "central_admin": t("central_admin")}
     name = user.get("display_name", "?")
     initials = "".join([p[0] for p in name.split() if p][:2]).upper() or "?"
-    st.sidebar.markdown(
+    with st.sidebar.container():
+        st.markdown(
+            f"""
+            <div class="sentinel-user-card">
+              <div class="sentinel-user-avatar">{initials}</div>
+              <div>
+                <div class="sentinel-user-name">{name}</div>
+                <div class="sentinel-user-role">{role_label.get(user['role'], user['role'])}</div>
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        if st.button(t("log_out"), width='stretch'):
+            st.session_state.user = None
+            st.rerun()
+
+
+def page_header(icon: str, title: str, subtitle: str = None):
+    """Renders the shared page masthead: icon + serif title, a single
+    accent rule, and an optional subtitle — used in place of a bare
+    st.title()/st.caption() pair so every page in the app shares one
+    consistent identity instead of nine independent headings."""
+    sub_html = f'<div class="masthead-sub">{subtitle}</div>' if subtitle else ""
+    st.markdown(
         f"""
-        <div class="sentinel-user-card">
-          <div class="sentinel-user-avatar">{initials}</div>
-          <div>
-            <div class="sentinel-user-name">{name}</div>
-            <div class="sentinel-user-role">{role_label.get(user['role'], user['role'])}</div>
+        <div class="sentinel-masthead">
+          <div class="kicker">
+            <span class="kicker-icon">{icon}</span>
+            <h1>{title}</h1>
           </div>
+          {sub_html}
+          <div class="masthead-rule"></div>
         </div>
         """,
         unsafe_allow_html=True,
     )
-    if st.sidebar.button("↪ Log out", width='stretch'):
-        st.session_state.user = None
-        st.rerun()
 
 
 def require_role(user: dict, allowed_roles: list):
@@ -257,44 +317,44 @@ def get_contractor_network_scores(_df: pd.DataFrame, _contractors: pd.DataFrame)
 # ---------------------------------------------------------------------------
 THEMES = {
     "light": {
-        "bg_gradient": "linear-gradient(180deg, #F5F7FB 0%, #ECF0F9 100%)",
-        "bg": "#F5F7FB",
+        "bg_gradient": "linear-gradient(180deg, #F6F7F9 0%, #F0F2F5 100%)",
+        "bg": "#F6F7F9",
         "card": "#FFFFFF",
-        "card_border": "#E3E7F1",
+        "card_border": "#E3E6EB",
         "sidebar_bg": "#FFFFFF",
-        "sidebar_border": "#E3E7F1",
-        "text": "#1A1F36",
-        "text_muted": "#5B6472",
-        "heading": "#372E8A",
-        "primary": "#4F46E5",
-        "primary_dark": "#372E8A",
-        "accent": "#0EA5B5",
-        "shadow": "0 2px 10px rgba(20,25,50,0.06)",
-        "shadow_hover": "0 10px 24px rgba(20,25,50,0.12)",
-        "hover_bg": "#EEF1FA",
+        "sidebar_border": "#E3E6EB",
+        "text": "#1A1D24",
+        "text_muted": "#66707C",
+        "heading": "#11141B",
+        "primary": "#2952CC",
+        "primary_dark": "#1E3D99",
+        "accent": "#3F6FE0",
+        "shadow": "0 1px 2px rgba(16,20,30,.05), 0 1px 0 rgba(16,20,30,.04)",
+        "shadow_hover": "0 8px 20px rgba(16,20,30,.10)",
+        "hover_bg": "#EEF1F6",
         "input_bg": "#FFFFFF",
-        "divider": "#E3E7F1",
-        "code_bg": "#F0F2F8",
+        "divider": "#E3E6EB",
+        "code_bg": "#EEF1F6",
     },
     "dark": {
-        "bg_gradient": "linear-gradient(180deg, #0E1220 0%, #131A2E 100%)",
-        "bg": "#0E1220",
-        "card": "#161D31",
-        "card_border": "#262F49",
-        "sidebar_bg": "#10152B",
-        "sidebar_border": "#232C46",
-        "text": "#E7EBF7",
-        "text_muted": "#96A0BD",
-        "heading": "#C7D2FE",
-        "primary": "#818CF8",
-        "primary_dark": "#6366F1",
-        "accent": "#2DD4DA",
-        "shadow": "0 2px 10px rgba(0,0,0,0.35)",
-        "shadow_hover": "0 12px 28px rgba(0,0,0,0.5)",
-        "hover_bg": "#1B2340",
-        "input_bg": "#141B2E",
-        "divider": "#232C46",
-        "code_bg": "#111729",
+        "bg_gradient": "linear-gradient(180deg, #0A0D13 0%, #10141C 100%)",
+        "bg": "#0A0D13",
+        "card": "#141822",
+        "card_border": "#262C3A",
+        "sidebar_bg": "#0F131B",
+        "sidebar_border": "#242A38",
+        "text": "#E7E9EE",
+        "text_muted": "#8B93A7",
+        "heading": "#F5F6F9",
+        "primary": "#5B84E8",
+        "primary_dark": "#3457C4",
+        "accent": "#7098F0",
+        "shadow": "0 1px 3px rgba(0,0,0,.5)",
+        "shadow_hover": "0 10px 24px rgba(0,0,0,.55)",
+        "hover_bg": "#1A2030",
+        "input_bg": "#141A24",
+        "divider": "#242A38",
+        "code_bg": "#121722",
     },
 }
 
@@ -309,10 +369,11 @@ def get_palette() -> dict:
 
 _CSS_TEMPLATE = Template(r"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap');
 
 html, body, [class*="css"] {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-feature-settings: "tnum" 1;
 }
 
 /* ---- App background & header ---- */
@@ -359,24 +420,41 @@ html, body, [class*="css"] {
 }
 
 /* ---- Headings ---- */
+/* A distinct heading face (Sora) from the Inter body text gives the app
+   one considered typographic identity instead of the flat single-font
+   look — this cascades to every st.title/st.subheader on all nine pages
+   from this one rule. Clean geometric sans, not serif/italic: the goal
+   here is "confident modern dashboard", not "gazette". */
 h1, h2, h3 {
-    font-family: 'Manrope', 'Inter', sans-serif !important;
-    font-weight: 800 !important;
-    letter-spacing: -0.02em;
+    font-family: 'Sora', 'Inter', sans-serif !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.015em;
     color: ${heading};
 }
 h1 {
-    font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.3rem) !important;
+    font-size: clamp(1.5rem, 1.15rem + 1.4vw, 2.2rem) !important;
+    font-weight: 700 !important;
 }
-/* Reserved for the actual brand name (login hero) — everywhere else uses
-   a solid heading color. A gradient on every single page title (this app
-   has one on all ten pages) reads as noisy rather than "branded"; used
-   once, at the one moment that's genuinely a logo/wordmark, it reads as
-   intentional. */
 .sentinel-hero-title {
-    background: linear-gradient(90deg, ${primary}, ${accent});
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: ${heading} !important;
+}
+.sentinel-masthead {
+    border-bottom: 1px solid ${divider};
+    padding-bottom: .85rem;
+    margin-bottom: 1.4rem;
+}
+.sentinel-masthead .kicker {
+    display: flex; align-items: center; gap: 10px;
+}
+.sentinel-masthead .kicker-icon { font-size: 1.5rem; line-height: 1; }
+.sentinel-masthead h1 {
+    margin: 0 !important;
+}
+.sentinel-masthead .masthead-sub {
+    color: ${text_muted}; font-size: .92rem; margin-top: .35rem; max-width: 74ch;
+}
+.sentinel-masthead .masthead-rule {
+    width: 40px; height: 3px; background: ${primary}; margin-top: .7rem; border-radius: 2px;
 }
 
 /* ---- Sidebar ---- */
@@ -390,18 +468,28 @@ h1 {
 }
 [data-testid="stSidebarNavLink"] {
     border-radius: 8px !important;
+    position: relative;
 }
 [data-testid="stSidebarNavLink"]:hover { background: ${hover_bg} !important; }
 [data-testid="stSidebarNavLink"][aria-current="page"] { background: ${hover_bg} !important; }
 [data-testid="stSidebarNavLink"][aria-current="page"] p {
     color: ${primary} !important; font-weight: 700 !important;
 }
+/* Active-page indicator: a short accent bar on the left edge of the
+   current nav item, the common "you are here" pattern in professional
+   dashboard sidebars (Linear, Notion, Vercel etc.) rather than relying
+   on background tint alone. */
+[data-testid="stSidebarNavLink"][aria-current="page"]::before {
+    content: ""; position: absolute; left: -8px; top: 6px; bottom: 6px; width: 3px;
+    background: ${primary}; border-radius: 2px;
+}
 .sentinel-brand {
     padding: 6px 4px 14px; margin-bottom: 10px;
     border-bottom: 1px solid ${sidebar_border};
 }
 .sentinel-brand .brand-title {
-    font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 1.05rem; color: ${text};
+    font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1.05rem; color: ${text};
+    letter-spacing: -0.01em;
 }
 .sentinel-brand .brand-sub { font-size: .72rem; color: ${text_muted}; margin-top: 2px; }
 .sentinel-user-card {
@@ -417,50 +505,111 @@ h1 {
 .sentinel-user-name { font-weight: 700; font-size: .85rem; color: ${text}; }
 .sentinel-user-role { font-size: .72rem; color: ${text_muted}; }
 
+/* ---- Sidebar scroll-split ----
+   Streamlit renders everything after st.sidebar.* calls into one
+   [data-testid="stSidebarUserContent"] region, and by default the WHOLE
+   sidebar ([data-testid="stSidebarContent"]) is one scrolling box — nav
+   links, brand, theme/language controls, profile card and log-out
+   button all in a single scroll, so on a short window the log-out
+   button is the last thing you can scroll down to reach. That's the
+   exact complaint this fixes.
+
+   common.py wraps the two sidebar sections in their own explicit
+   st.sidebar.container() calls: theme_toggle_ui() (brand/theme/language)
+   is the first container, show_user_badge()'s profile-card+log-out is
+   the second and last — giving the CSS below two concrete, positional
+   hooks (first-of-type / last-of-type) instead of anything fragile like
+   a generated class name.
+
+   The sidebar becomes a fixed-height flex column instead of one long
+   scrolling block: the page-nav list keeps its natural size (scrolling
+   internally only in the unlikely case it's very long itself), the
+   first container (brand/theme/language) gets whatever space is left
+   over and scrolls internally ONLY if it doesn't fit, and the second
+   container (profile+log-out) is flex-shrink:0 — meaning it's always
+   rendered at full size and always fully visible with zero scrolling.
+   A position:sticky element would NOT guarantee that: sticky only stops
+   an element sliding away *after* you've already scrolled to it, it
+   doesn't pull something into view from further away — which is
+   exactly the case here on a short window, so this needs the real
+   flex split below rather than the simpler-looking sticky shortcut. */
+[data-testid="stSidebarContent"] {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden !important;
+    height: 100vh;
+}
+[data-testid="stSidebarHeader"] { flex-shrink: 0; }
+[data-testid="stSidebarNav"] {
+    flex-shrink: 0;
+    max-height: 46vh;
+    overflow-y: auto;
+}
+[data-testid="stSidebarUserContent"] {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-bottom: .5rem;
+}
+[data-testid="stSidebarUserContent"] > div {
+    flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; overflow: hidden;
+}
+[data-testid="stSidebarUserContent"] > div > [data-testid="stVerticalBlock"] {
+    flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; overflow: hidden;
+}
+[data-testid="stSidebarUserContent"] > div > [data-testid="stVerticalBlock"] > [data-testid="stLayoutWrapper"]:first-of-type {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+}
+[data-testid="stSidebarUserContent"] > div > [data-testid="stVerticalBlock"] > [data-testid="stLayoutWrapper"]:last-of-type {
+    flex-shrink: 0;
+    padding-top: .5rem;
+}
+
 /* ---- Metric cards ---- */
 [data-testid="stMetric"] {
     background: ${card} !important;
     border: 1px solid ${card_border};
-    border-radius: 16px;
-    padding: 16px 18px 14px;
+    border-left: 3px solid ${primary};
+    border-radius: 10px;
+    padding: 14px 18px 12px;
     box-shadow: ${shadow};
-    position: relative; overflow: hidden;
-    transition: transform .18s ease, box-shadow .18s ease;
-}
-[data-testid="stMetric"]::before {
-    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    background: linear-gradient(90deg, ${primary}, ${accent});
+    position: relative;
+    transition: box-shadow .18s ease, transform .18s ease;
 }
 [data-testid="stMetric"]:hover {
-    transform: translateY(-3px);
     box-shadow: ${shadow_hover};
+    transform: translateY(-1px);
 }
 [data-testid="stMetricLabel"] {
     color: ${text_muted} !important; font-size: .74rem !important;
-    text-transform: uppercase; letter-spacing: .06em; font-weight: 600 !important;
+    text-transform: uppercase; letter-spacing: .05em; font-weight: 600 !important;
 }
 [data-testid="stMetricValue"] {
-    color: ${text} !important; font-weight: 800 !important;
-    font-size: clamp(1.2rem, .9rem + 1vw, 1.8rem) !important;
+    color: ${text} !important; font-weight: 700 !important;
+    font-variant-numeric: tabular-nums;
+    font-size: clamp(1.2rem, .9rem + 1vw, 1.75rem) !important;
 }
 
 /* ---- Buttons ---- */
 .stButton button, .stDownloadButton button, .stFormSubmitButton button {
-    background: linear-gradient(135deg, ${primary}, ${primary_dark}) !important;
-    color: #fff !important;
-    border: none !important;
-    border-radius: 10px !important;
+    background: ${primary} !important;
+    color: ${card} !important;
+    border: 1px solid ${primary} !important;
+    border-radius: 8px !important;
     font-weight: 600 !important;
     padding: 0.5rem 1.2rem !important;
-    box-shadow: 0 2px 8px ${primary}55;
-    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    box-shadow: none;
+    transition: background .15s ease, border-color .15s ease;
 }
 .stButton button:hover, .stDownloadButton button:hover, .stFormSubmitButton button:hover {
-    transform: translateY(-2px);
-    filter: brightness(1.08);
-    box-shadow: 0 6px 18px ${primary}66;
+    background: ${accent} !important;
+    border-color: ${accent} !important;
 }
-.stButton button:active, .stFormSubmitButton button:active { transform: translateY(0); }
+.stButton button:active, .stFormSubmitButton button:active { background: ${primary_dark} !important; }
 
 /* ---- Inputs ---- */
 [data-testid="stTextInput"] input,
@@ -533,7 +682,7 @@ h1 {
 /* ---- Expanders ---- */
 [data-testid="stExpander"] {
     border: 1px solid ${card_border} !important;
-    border-radius: 14px !important;
+    border-radius: 10px !important;
     background: ${card} !important;
     box-shadow: ${shadow};
     overflow: hidden;
@@ -563,12 +712,12 @@ h1 {
 [data-testid="stAlert"] { border-radius: 12px !important; }
 [data-testid="stPlotlyChart"], [data-testid="stDataFrame"] {
     border: 1px solid ${card_border};
-    border-radius: 14px;
+    border-radius: 10px;
     padding: 6px;
     background: ${card};
     box-shadow: ${shadow};
 }
-[data-testid="stImage"] img { border-radius: 12px; box-shadow: ${shadow}; }
+[data-testid="stImage"] img { border-radius: 6px; box-shadow: ${shadow}; }
 
 /* ---- Divider / code ---- */
 hr { border-color: ${divider} !important; margin: 1.3rem 0 !important; }
@@ -588,7 +737,7 @@ code { background: ${code_bg} !important; border-radius: 4px !important; }
     display: inline-flex; align-items: center; gap: 5px;
     padding: 4px 13px; border-radius: 999px;
     font-weight: 700; font-size: .78rem; color: #fff;
-    letter-spacing: .02em; box-shadow: 0 2px 6px rgba(0,0,0,.18);
+    letter-spacing: .02em; box-shadow: 0 1px 3px rgba(0,0,0,.15);
     white-space: nowrap;
 }
 .risk-pill.critical { animation: sentinelPulse 1.8s ease-in-out infinite; }
@@ -600,7 +749,7 @@ code { background: ${code_bg} !important; border-radius: 4px !important; }
 /* ---- Raw HTML tables (to_html output) ---- */
 .sentinel-table-wrap {
     overflow-x: auto; -webkit-overflow-scrolling: touch;
-    border: 1px solid ${card_border}; border-radius: 14px;
+    border: 1px solid ${card_border}; border-radius: 10px;
     box-shadow: ${shadow}; background: ${card}; margin: .5rem 0 1.2rem;
 }
 .sentinel-table-wrap table { width: 100%; border-collapse: collapse; font-size: .87rem; }
@@ -615,6 +764,47 @@ code { background: ${code_bg} !important; border-radius: 4px !important; }
 }
 .sentinel-table-wrap tbody tr:hover { background: ${hover_bg}; }
 @media (max-width: 640px) { .sentinel-table-wrap table { font-size: .76rem; } }
+
+/* ---- Auth screen: sign-in form card + demo-account credential cards ---- */
+[data-testid="stForm"] {
+    background: ${card} !important;
+    border: 1px solid ${card_border} !important;
+    border-radius: 10px !important;
+    padding: 1.3rem 1.4rem 0.6rem !important;
+    box-shadow: ${shadow};
+}
+.sentinel-cred-note {
+    font-size: .82rem; color: ${text_muted}; line-height: 1.5;
+    margin: .2rem 0 1rem;
+}
+.sentinel-cred-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 12px;
+}
+.sentinel-cred-card {
+    border: 1px solid ${card_border}; border-radius: 10px;
+    background: ${card}; padding: 14px 16px; box-shadow: ${shadow};
+}
+.sentinel-cred-card .role-row {
+    display: flex; align-items: center; gap: 8px;
+    font-weight: 700; color: ${heading}; font-size: .95rem;
+}
+.sentinel-cred-card .role-icon { font-size: 1.05rem; }
+.sentinel-cred-card .scope {
+    font-size: .76rem; color: ${text_muted}; margin: 2px 0 10px;
+}
+.sentinel-cred-card .cred-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 0; border-top: 1px dashed ${divider};
+}
+.sentinel-cred-card .cred-row:first-of-type { border-top: 1px solid ${divider}; }
+.sentinel-cred-label {
+    color: ${text_muted}; font-size: .72rem; text-transform: uppercase; letter-spacing: .04em;
+}
+.sentinel-cred-value {
+    font-family: 'SF Mono', 'Consolas', 'Menlo', monospace; font-size: .82rem;
+    color: ${text}; background: ${hover_bg}; padding: 2px 8px; border-radius: 5px;
+}
 
 /* ---- Scrollbar ---- */
 ::-webkit-scrollbar { width: 10px; height: 10px; }

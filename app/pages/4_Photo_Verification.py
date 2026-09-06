@@ -20,7 +20,7 @@ from PIL import Image
 
 from common import (
     get_scored_dataset, get_raw_tables, inject_base_style, require_login, show_user_badge,
-    get_vision_geo_results, get_vision_corpus,
+    get_vision_geo_results, get_vision_corpus, page_header,
 )
 from sentinel.config import PHOTO_DIR, UPLOADED_PHOTO_DIR
 from sentinel.engines.vision_geo import score_new_photo
@@ -29,23 +29,19 @@ from sentinel.engines import reverse_image_search as ris
 from sentinel.utils.geo import extract_gps_from_exif
 from sentinel.db import insert_uploaded_evidence, read_uploaded_evidence, delete_uploaded_evidence
 from sentinel.audit.hash_chain import append_event
+from i18n import t
 
 st.set_page_config(page_title="Photo Verification — MPLADS Sentinel", page_icon="📸", layout="wide")
 inject_base_style()
 user = require_login()
 show_user_badge()
-st.title("📸 Photo & Geo Verification")
-st.caption(
-    "Every evidence photo is checked two ways: does its GPS location match the declared project site, "
-    "and does it visually match the declared work type / has it been reused elsewhere? "
-    "Powered by a real OpenCV pipeline (perceptual hashing + colour/edge signature matching) — no photo is taken on faith."
-)
+page_header("📸", t("photo_title"), t("photo_sub"))
 
 df = get_scored_dataset()
 raw = get_raw_tables()
 photos = raw["photos"]
 
-with st.spinner("Running vision/geo checks..."):
+with st.spinner(t("vision_geo_spinner")):
     photo_geo = get_vision_geo_results(df, photos)
 
 flagged_projects = photo_geo[
@@ -53,17 +49,17 @@ flagged_projects = photo_geo[
     | (photo_geo["geo_photo_score"] > 20)
 ].sort_values("geo_photo_score", ascending=False)
 
-tab1, tab2, tab3 = st.tabs(["🚩 Flagged Evidence", "🔎 Look Up Any Project", "📤 Upload & Check a Photo"])
+tab1, tab2, tab3 = st.tabs([t("tab_flagged_evidence"), t("tab_lookup_project"), t("tab_upload_check")])
 
 with tab1:
-    st.metric("Projects with Photo/Geo Issues", len(flagged_projects))
+    st.metric(t("kpi_photo_geo_issues"), len(flagged_projects))
     for project_id, prow in flagged_projects.head(15).iterrows():
         meta = df[df["project_id"] == project_id]
         if meta.empty:
             continue
         meta = meta.iloc[0]
-        with st.expander(f"{project_id} — {meta.category} — geo/photo score {prow.geo_photo_score:.0f}"):
-            st.markdown(f"**District:** {meta.district}, {meta.state}  |  **Contractor:** {meta.contractor_name}")
+        with st.expander(f"{project_id} — {meta.category} — {t('kpi_geo_photo_score')} {prow.geo_photo_score:.0f}"):
+            st.markdown(f"**{t('district')}:** {meta.district}, {meta.state}  |  **{t('col_contractor')}:** {meta.contractor_name}")
             for flag in prow.geo_vision_flags:
                 st.warning(flag.replace("_", " "))
 
@@ -76,14 +72,14 @@ with tab1:
                         st.image(str(fpath), width='stretch', caption=ph["photo_id"])
 
 with tab2:
-    query_id = st.text_input("Project ID", key="lookup2")
+    query_id = st.text_input(t("project_id_lbl"), key="lookup2")
     if query_id:
         pid = query_id.strip().upper()
         if pid in photo_geo.index:
             prow = photo_geo.loc[pid]
-            st.metric("Geo/Photo Score", f"{prow.geo_photo_score:.0f}")
-            st.metric("Max Photo Distance From Site", f"{prow.max_geo_distance_m:,.0f} m")
-            st.metric("Duplicate Photo Detected", "Yes" if prow.has_duplicate_photo else "No")
+            st.metric(t("kpi_geo_photo_score"), f"{prow.geo_photo_score:.0f}")
+            st.metric(t("kpi_max_distance"), f"{prow.max_geo_distance_m:,.0f} m")
+            st.metric(t("kpi_duplicate_detected"), t("yes") if prow.has_duplicate_photo else t("no"))
             proj_photos = photos[photos["project_id"] == pid]
             cols = st.columns(min(max(len(proj_photos), 1), 4))
             for i, (_, ph) in enumerate(proj_photos.iterrows()):
@@ -92,33 +88,27 @@ with tab2:
                     if fpath.exists():
                         st.image(str(fpath), width='stretch', caption=ph["photo_id"])
         else:
-            st.error("Project not found.")
+            st.error(t("project_not_found"))
 
 with tab3:
-    st.caption(
-        "Upload your own photo and check it against a real project's declared work type and site — this "
-        "runs the same trained model and perceptual-hash duplicate check used above, on a photo that was "
-        "never part of the training corpus, so it's a genuine out-of-sample test of the pipeline. Uploads "
-        "are saved as real evidence for the project (visible on its Project Detail page too), and can be "
-        "deleted below."
-    )
-    lookup_id = st.text_input("Project ID to check against (e.g. PRJ00363)", key="upload_lookup").strip().upper()
+    st.caption(t("upload_check_caption"))
+    lookup_id = st.text_input(t("upload_lookup_lbl"), key="upload_lookup").strip().upper()
     matches = df[df["project_id"] == lookup_id] if lookup_id else pd.DataFrame()
 
     if lookup_id and matches.empty:
-        st.error(f"No project found with ID '{lookup_id}'.")
+        st.error(t("no_project_found", id=lookup_id))
     elif lookup_id:
         meta = matches.iloc[0]
-        st.markdown(f"**Declared category:** {meta.category}  |  **Site:** {meta.district}, {meta.state}")
+        st.markdown(f"**{t('declared_category_site')}:** {meta.category}  |  **{t('site_lbl')}:** {meta.district}, {meta.state}")
 
-        uploaded = st.file_uploader("Upload a site photo (jpg/png)", type=["jpg", "jpeg", "png"], key="evidence_uploader")
+        uploaded = st.file_uploader(t("upload_site_photo"), type=["jpg", "jpeg", "png"], key="evidence_uploader")
 
-        if uploaded is not None and st.button("Check & Save This Photo", type="primary"):
+        if uploaded is not None and st.button(t("check_save_photo"), type="primary"):
             raw_bytes = uploaded.getvalue()
             file_bytes = np.frombuffer(raw_bytes, np.uint8)
             img_bgr = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
             if img_bgr is None:
-                st.error("Couldn't read that file as an image.")
+                st.error(t("couldnt_read_image"))
             else:
                 # Real GPS EXIF — not a manually-typed number. See
                 # extract_gps_from_exif()'s docstring for why: a
@@ -131,7 +121,7 @@ with tab3:
                 pil_img = Image.open(io.BytesIO(raw_bytes))
                 photo_lat, photo_lon = extract_gps_from_exif(pil_img)
 
-                with st.spinner("Scoring against the trained model and photo corpus..."):
+                with st.spinner(t("scoring_photo_spinner")):
                     corpus = get_vision_corpus()
                     res = score_new_photo(
                         img_bgr, meta.category, corpus,
@@ -166,17 +156,17 @@ with tab3:
 
                 cimg, cres = st.columns([1, 1.3])
                 with cimg:
-                    st.image(cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB), width='stretch', caption="Your upload (saved)")
+                    st.image(cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB), width='stretch', caption=t("your_upload_saved"))
                 with cres:
                     if res["visual_consistency"] is not None:
-                        st.metric("Match to declared category (vs. this demo's synthetic training photos)",
+                        st.metric(t("match_declared_category"),
                                   f"{res['visual_consistency'] * 100:.0f}%")
                         if res["consistency_fail"]:
-                            st.warning(f"Doesn't look much like a typical '{meta.category}' photo to the trained classifier.")
+                            st.warning(t("doesnt_look_like", category=meta.category))
                         else:
-                            st.success("Visually consistent with the declared work type.")
+                            st.success(t("visually_consistent"))
                     else:
-                        st.info("Category not covered by the trained classifier — no consistency score available.")
+                        st.info(t("category_not_covered"))
 
                     if res["is_duplicate"]:
                         st.error(
@@ -184,14 +174,14 @@ with tab3:
                             f"used for project {res['duplicate_of_project']}."
                         )
                     else:
-                        st.success("No matching photo found elsewhere in the system.")
+                        st.success(t("no_matching_photo"))
 
                     if photo_lat is not None:
-                        st.metric("Distance from declared site (from photo's real GPS EXIF)", f"{res['geo_distance_m']:,.0f} m")
+                        st.metric(t("distance_from_site_metric"), f"{res['geo_distance_m']:,.0f} m")
                         if res["geo_fail"]:
-                            st.warning("Farther from the declared site than the tolerance allows.")
+                            st.warning(t("farther_than_tolerance"))
                         else:
-                            st.success("Within the expected distance of the declared site.")
+                            st.success(t("within_expected_distance"))
                     else:
                         st.info(
                             "This photo has no GPS location embedded in it, so its location can't be verified "
@@ -201,11 +191,12 @@ with tab3:
                             "This is exactly why real field-verification apps (like the eSAKSHI process this "
                             "app is modelled on) require evidence photos to be captured through the app's own "
                             "in-app camera at submission time, rather than uploaded from a gallery — it makes "
-                            "this workaround impossible instead of just detecting it after the fact."
+                            "this workaround impossible instead of just detecting it after the fact. "
+                            "(This explainer is currently only available in English.)"
                         )
 
                 st.divider()
-                st.markdown("**Real-world visual check (CLIP zero-shot)**")
+                st.markdown(f"**{t('clip_section_header')}**")
                 if rwv.ensure_loaded():
                     clip_scores = rwv.classify(cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB))
                     if clip_scores:
@@ -229,7 +220,7 @@ with tab3:
                         "from a classifier trained only on this demo's synthetic photos, is what's active without it."
                     )
 
-                st.markdown("**Reverse image search (is this photo lifted from the web?)**")
+                st.markdown(f"**{t('reverse_image_header')}**")
                 web_result = ris.search_web_for_image(raw_bytes)
                 if not web_result["configured"]:
                     st.info(
@@ -256,10 +247,10 @@ with tab3:
                         st.success("No matches found elsewhere on the open web.")
 
         st.divider()
-        st.subheader("Evidence uploaded for this project")
+        st.subheader(t("evidence_for_project"))
         existing = read_uploaded_evidence(lookup_id)
         if existing.empty:
-            st.caption("No evidence uploaded yet for this project through this app.")
+            st.caption(t("no_evidence_yet"))
         else:
             for _, erow in existing.iterrows():
                 with st.container(border=True):
@@ -279,8 +270,8 @@ with tab3:
                             mismatch = " ⚠️ farther than tolerance" if erow["geo_fail"] else " ✓ within tolerance"
                             st.caption(f"GPS: {erow['geo_lat']:.5f}, {erow['geo_lon']:.5f} — {erow['geo_distance_m']:.0f} m from site{mismatch}")
                         else:
-                            st.caption("No GPS metadata found in this photo.")
-                        if st.button("🗑️ Delete this evidence", key=f"del_{erow['upload_id']}"):
+                            st.caption(t("no_gps_metadata"))
+                        if st.button(t("delete_evidence_btn"), key=f"del_{erow['upload_id']}"):
                             delete_uploaded_evidence(erow["upload_id"])
                             if epath.exists():
                                 epath.unlink()

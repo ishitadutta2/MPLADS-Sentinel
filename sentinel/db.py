@@ -190,24 +190,26 @@ def init_schema():
 def load_csvs_into_db():
     """Idempotently (re)loads the CSVs in data/ into the SQLite tables.
 
-    citizen_reports is handled separately from the rest of table_files:
-    unlike those tables (pure reference/demo data — always safe to fully
-    replace from the CSV), citizen_reports ALSO receives live INSERTs from
-    the Citizen Reporting page's public submission form. This function
-    used to replace it wholesale on every single call, same as the others
-    — which meant the next time *anything* triggered a cache clear and a
-    fresh load (e.g. right after someone submitted a report, since that
-    submission itself calls st.cache_data.clear()), every citizen report
-    a real person had ever submitted through the app was silently
+    citizen_reports and projects are handled separately from the rest of
+    table_files: unlike those tables (pure reference/demo data — always
+    safe to fully replace from the CSV), citizen_reports ALSO receives
+    live INSERTs from the Citizen Reporting page's public submission
+    form, and projects ALSO receives live INSERTs/UPDATEs from the Work
+    Tracker page (MPs recommending new works, officers advancing status).
+    This function used to replace both wholesale on every single call,
+    same as the others — which meant the next time *anything* triggered
+    a cache clear and a fresh load (e.g. right after someone submitted a
+    report or recommended a work, since that action itself calls
+    st.cache_data.clear()), every citizen report or newly-added work a
+    real person had ever submitted through the app was silently
     discarded and replaced with just the static demo baseline again. So
-    it's seeded from the CSV once — only if the table doesn't exist yet
-    or is genuinely empty — and left alone after that.
+    each is seeded from the CSV once — only if the table doesn't exist
+    yet or is genuinely empty — and left alone after that.
     """
     init_schema()
     table_files = {
         "mps": "mps.csv",
         "contractors": "contractors.csv",
-        "projects": "projects.csv",
         "transactions": "transactions.csv",
         "photos": "photos.csv",
     }
@@ -219,17 +221,64 @@ def load_csvs_into_db():
             df = pd.read_csv(fpath)
             df.to_sql(table, conn, if_exists="replace", index=False)
 
-        existing_reports = conn.execute("SELECT COUNT(*) FROM citizen_reports").fetchone()[0]
-        if existing_reports == 0:
-            fpath = DATA_DIR / "citizen_reports.csv"
-            if fpath.exists():
-                df = pd.read_csv(fpath)
-                df.to_sql("citizen_reports", conn, if_exists="replace", index=False)
+        for table, fname in (("citizen_reports", "citizen_reports.csv"), ("projects", "projects.csv")):
+            existing = conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+            if existing == 0:
+                fpath = DATA_DIR / fname
+                if fpath.exists():
+                    df = pd.read_csv(fpath)
+                    df.to_sql(table, conn, if_exists="replace", index=False)
 
         # to_sql(if_exists="replace") drops and recreates each table above,
         # which drops any index on it — re-apply so the indices actually
         # persist past a reload.
         conn.executescript(INDEX_SCHEMA)
+
+
+def next_work_id() -> str:
+    """Generates a fresh id for a user-recommended work, prefixed 'WRK-'
+    (as opposed to the synthetic demo dataset's 'PRJxxxxx' ids) purely so
+    it's visually obvious in the UI which projects came from the seeded
+    demo data and which were actually entered by a person through this
+    app — an honesty signal, not a technical requirement."""
+    import uuid
+    return f"WRK-{uuid.uuid4().hex[:8].upper()}"
+
+
+def insert_project(record: dict):
+    """Inserts one new MP-recommended work into the live projects table.
+    Only the columns a recommendation actually has values for are set;
+    everything downstream of the sanction stage (contractor, amounts
+    actually disbursed, evidence photos) stays NULL until it genuinely
+    happens, exactly like a real not-yet-sanctioned MPLADS work."""
+    cols = [
+        "project_id", "mp_id", "constituency", "state", "district", "category",
+        "description", "sanctioned_amount", "expenditure", "status",
+        "recommendation_date", "implementing_agency", "marked_complete_by_ia",
+        "is_seeded_anomalous",
+    ]
+    values = [record.get(c) for c in cols]
+    placeholders = ", ".join("?" for _ in cols)
+    with get_conn() as conn:
+        conn.execute(
+            f"INSERT INTO projects ({', '.join(cols)}) VALUES ({placeholders})",
+            values,
+        )
+
+
+def update_project(project_id: str, fields: dict):
+    """Updates arbitrary columns on one project row — used by the Work
+    Tracker page to advance a project's status through the pipeline
+    (Recommended -> Sanctioned -> Work In Progress -> Payment Released ->
+    Completed) and stamp the relevant date/flag columns as it does."""
+    if not fields:
+        return
+    set_clause = ", ".join(f"{k} = ?" for k in fields)
+    with get_conn() as conn:
+        conn.execute(
+            f"UPDATE projects SET {set_clause} WHERE project_id = ?",
+            [*fields.values(), project_id],
+        )
 
 
 def read_table(table_name: str) -> pd.DataFrame:

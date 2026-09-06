@@ -15,19 +15,15 @@ import streamlit as st
 
 from common import (
     get_scored_dataset, get_raw_tables, inject_base_style, require_login, show_user_badge, apply_plot_theme,
-    get_contractor_graph, get_contractor_network_scores,
+    get_contractor_graph, get_contractor_network_scores, page_header,
 )
+from i18n import t, risk_label
 
 st.set_page_config(page_title="Contractor Network — MPLADS Sentinel", page_icon="🕸️", layout="wide")
 inject_base_style()
 user = require_login()
 show_user_badge()
-st.title("🕸️ Contractor Network Analysis")
-st.caption(
-    "Contractors sharing a registration address, bank-account prefix, or director name are linked — "
-    "the classic proxy signals for shell-company cartels bidding against 'each other' to fake competition. "
-    "Built with a real NetworkX graph over the contractor registry."
-)
+page_header("🕸️", t("contractor_title"), t("contractor_sub"))
 
 df = get_scored_dataset()
 raw = get_raw_tables()
@@ -40,20 +36,20 @@ components = [c for c in nx.connected_components(G) if len(c) >= 2]
 components.sort(key=len, reverse=True)
 
 c1, c2, c3 = st.columns(3)
-c1.metric("Contractors Tracked", len(contractors))
-c2.metric("Linked Clusters Found", len(components))
-c3.metric("Contractors in a Cluster", sum(len(c) for c in components))
+c1.metric(t("kpi_contractors_tracked"), len(contractors))
+c2.metric(t("kpi_linked_clusters"), len(components))
+c3.metric(t("kpi_contractors_in_cluster"), sum(len(c) for c in components))
 
 st.divider()
-st.subheader("Suspected Cartel Clusters")
+st.subheader(t("suspected_cartel_clusters"))
 
 if not components:
-    st.success("No linked contractor clusters detected.")
+    st.success(t("no_clusters_detected"))
 else:
     cluster_choice = st.selectbox(
-        "Select a cluster to inspect",
+        t("select_cluster"),
         range(len(components)),
-        format_func=lambda i: f"Cluster {i+1} — {len(components[i])} contractors",
+        format_func=lambda i: t("cluster_label", n=i+1, count=len(components[i])),
     )
     cluster_nodes = list(components[cluster_choice])
     subG = G.subgraph(cluster_nodes)
@@ -95,15 +91,24 @@ else:
     fig = apply_plot_theme(fig)
     st.plotly_chart(fig, width='stretch')
 
-    st.markdown("**Contractors in this cluster:**")
+    st.markdown(f"**{t('contractors_in_cluster')}**")
     cluster_df = contractors[contractors["contractor_id"].isin(cluster_nodes)][
         ["contractor_id", "contractor_name", "registration_address", "bank_account", "director_name"]
-    ]
+    ].rename(columns={
+        "contractor_id": t("col_contractor_id"), "contractor_name": t("col_contractor_name"),
+        "registration_address": t("col_registration_address"), "bank_account": t("col_bank_account"),
+        "director_name": t("col_director_name"),
+    })
     st.dataframe(cluster_df, width='stretch', hide_index=True)
 
-    st.markdown("**Projects awarded to this cluster:**")
+    st.markdown(f"**{t('projects_awarded_cluster')}**")
     cluster_projects = df[df["contractor_id"].isin(cluster_nodes)][
         ["project_id", "mp_name", "category", "sanctioned_amount", "composite_score", "risk_band"]
-    ].sort_values("composite_score", ascending=False)
+    ].sort_values("composite_score", ascending=False).copy()
+    cluster_projects["risk_band"] = cluster_projects["risk_band"].apply(risk_label)
+    cluster_projects = cluster_projects.rename(columns={
+        "project_id": t("col_project_id"), "mp_name": t("col_mp_name"), "category": t("category"),
+        "sanctioned_amount": t("col_sanctioned_amount"), "composite_score": t("col_score"), "risk_band": t("risk"),
+    })
     st.dataframe(cluster_projects, width='stretch', hide_index=True)
-    st.metric("Total Value Awarded to This Cluster", f"₹{cluster_projects['sanctioned_amount'].sum():,.0f}")
+    st.metric(t("kpi_total_value_awarded"), f"₹{cluster_projects[t('col_sanctioned_amount')].sum():,.0f}")

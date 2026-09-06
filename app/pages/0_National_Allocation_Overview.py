@@ -21,21 +21,18 @@ import plotly.express as px
 import pandas as pd
 import streamlit as st
 
-from common import get_real_mp_allocations, inject_base_style, require_login, show_user_badge, apply_plot_theme
+from common import get_real_mp_allocations, inject_base_style, require_login, show_user_badge, apply_plot_theme, page_header
+from i18n import t
 
 st.set_page_config(page_title="National Allocation Overview — MPLADS Sentinel", page_icon="🇮🇳", layout="wide")
 inject_base_style()
 user = require_login()
 show_user_badge()
 
-st.title("🇮🇳 National Allocation Overview")
-st.success(
-    "**This page uses real, published data** — the eSAKSHI portal's allocated-limit dataset for the "
-    "18th Lok Sabha. Every other page in this app uses a synthetic demo dataset to showcase the "
-    "detection engines; this page is the exception, and shows no risk scores or anomaly flags of any kind."
-)
+page_header("🇮🇳", t("national_title"))
+st.success(t("real_data_banner"))
 
-with st.expander("About the eSAKSHI portal and how MPLADS funds actually flow", expanded=False):
+with st.expander(t("about_esakshi_expander"), expanded=False):
     st.markdown("""
 The MPLADS–eSAKSHI web portal (`mplads.mospi.gov.in`) has managed the MPLADS fund-flow process since
 **1 April 2023**. Before that, the Scheme ran in physical mode, with District Authorities maintaining
@@ -63,48 +60,48 @@ recommendation and sanction data for the 17th Lok Sabha is only available on eSA
 
 Everything updates in real time as each stakeholder — MP, District Authority, or Implementing Agency —
 acts through their own login.
+
+*(This explainer is currently only available in English.)*
 """)
 
 df = get_real_mp_allocations()
 
 c1, c2, c3, c4 = st.columns(4)
-c1.metric("MPs Covered", f"{len(df):,}")
-c2.metric("States / UTs", f"{df['state'].nunique()}")
-c3.metric("Total Entitlement Pool", f"₹{df['allocated_amount'].sum()/1e7:,.0f} Cr")
-c4.metric("Median Entitlement / MP", f"₹{df['allocated_amount'].median()/1e7:.2f} Cr")
+c1.metric(t("kpi_mps_covered"), f"{len(df):,}")
+c2.metric(t("kpi_states_uts"), f"{df['state'].nunique()}")
+c3.metric(t("kpi_total_entitlement"), f"₹{df['allocated_amount'].sum()/1e7:,.0f} Cr")
+c4.metric(t("kpi_median_entitlement"), f"₹{df['allocated_amount'].median()/1e7:.2f} Cr")
 
-st.caption(
-    "The standard MPLADS annual entitlement is ₹5 Cr, i.e. ₹25 Cr for a full five-year term. Figures above "
-    "the standard amount typically reflect carried-forward or supplementary authorisations recorded on the portal."
-)
+st.caption(t("standard_entitlement_caption"))
 
 st.divider()
 
 col1, col2 = st.columns([1, 1.3])
 with col1:
-    st.subheader("Entitlement Distribution")
-    fig = px.histogram(df, x="allocated_amount", nbins=40, labels={"allocated_amount": "Allocated Amount (₹)"})
+    st.subheader(t("entitlement_distribution"))
+    fig = px.histogram(df, x="allocated_amount", nbins=40,
+                        labels={"allocated_amount": t("axis_allocated_amount"), "count": t("axis_num_projects")})
     fig.update_layout(height=360, showlegend=False)
     fig = apply_plot_theme(fig)
     st.plotly_chart(fig, width='stretch')
 
 with col2:
-    st.subheader("Total Entitlement by State / UT")
+    st.subheader(t("total_entitlement_by_state"))
     state_totals = df.groupby("state")["allocated_amount"].agg(["sum", "count"]).reset_index()
     state_totals.columns = ["state", "total_allocated", "n_mps"]
     state_totals["total_cr"] = state_totals["total_allocated"] / 1e7
     fig2 = px.bar(
         state_totals.sort_values("total_cr", ascending=True),
         x="total_cr", y="state", orientation="h",
-        labels={"total_cr": "Total Allocated (₹ Cr)", "state": ""},
+        labels={"total_cr": t("axis_total_allocated_cr"), "state": ""},
         height=560,
     )
     fig2 = apply_plot_theme(fig2)
     st.plotly_chart(fig2, width='stretch')
 
 st.divider()
-st.subheader("Search MPs")
-search = st.text_input("Search by MP name, state, or constituency")
+st.subheader(t("search_mps"))
+search = st.text_input(t("search_placeholder"))
 view = df.copy()
 if search:
     mask = (
@@ -115,17 +112,14 @@ if search:
     view = df[mask]
 
 view = view.rename(columns={
-    "mp_name": "MP Name", "state": "State", "constituency": "Constituency",
-    "allocated_amount": "Allocated Amount (₹)",
-})[["MP Name", "State", "Constituency", "Allocated Amount (₹)"]]
-view["Allocated Amount (₹)"] = view["Allocated Amount (₹)"].apply(
-    lambda v: f"₹{v:,.0f}" if pd.notna(v) else "Not yet published on portal"
+    "mp_name": t("col_mp_name_full"), "state": t("col_state"), "constituency": t("constituency"),
+    "allocated_amount": t("axis_allocated_amount"),
+})[[t("col_mp_name_full"), t("col_state"), t("constituency"), t("axis_allocated_amount")]]
+view[t("axis_allocated_amount")] = view[t("axis_allocated_amount")].apply(
+    lambda v: f"₹{v:,.0f}" if pd.notna(v) else t("not_yet_published")
 )
 st.dataframe(view, width='stretch', hide_index=True, height=420)
 
-st.caption(f"Showing {len(view):,} of {len(df):,} MPs.")
+st.caption(t("showing_n_of_n_mps", shown=len(view), total=len(df)))
 if df["allocated_amount"].isna().any():
-    st.caption(
-        f"Note: {df['allocated_amount'].isna().sum()} MP record(s) have no allocated amount published on the "
-        "portal as of this data snapshot — shown as-is rather than estimated."
-    )
+    st.caption(t("note_missing_allocation", n=df["allocated_amount"].isna().sum()))
