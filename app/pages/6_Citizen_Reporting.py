@@ -7,6 +7,7 @@ demonstrating the "citizen verification loop" the brief calls for.
 import sys
 from pathlib import Path
 import datetime
+import html
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -16,17 +17,17 @@ import streamlit as st
 
 from common import (
     get_scored_dataset, get_raw_tables, inject_base_style, risk_pill, require_login,
-    show_user_badge, render_html_table, apply_plot_theme, RISK_COLORS, page_header,
+    show_user_badge, render_html_table, apply_plot_theme, RISK_COLORS, page_header, svg_icon,
 )
 from sentinel.db import get_conn
 from sentinel.audit.hash_chain import append_event
 from i18n import t
 
-st.set_page_config(page_title="Citizen Reporting — MPLADS Sentinel", page_icon="🗣️", layout="wide")
+st.set_page_config(page_title="Citizen Reporting — MPLADS Sentinel", page_icon=":material/forum:", layout="wide")
 inject_base_style()
 user = require_login()
 show_user_badge()
-page_header("🗣️", t("citizen_title"), t("citizen_sub"))
+page_header("chat", t("citizen_title"), t("citizen_sub"))
 
 df = get_scored_dataset()
 raw = get_raw_tables()
@@ -103,10 +104,39 @@ with tab2:
     st.plotly_chart(fig, width='stretch')
 
     st.subheader(t("all_reports_header"))
+    # channel / details / is_unlisted_project only exist once at least one
+    # report has gone through the public Citizen Chatbot's extended
+    # schema (see sentinel.db.ensure_citizen_report_columns) — default them
+    # in so older/base rows (and a merged frame missing the columns
+    # entirely) still display cleanly instead of raising a KeyError.
+    for col, default in [("channel", "web"), ("details", ""), ("is_unlisted_project", 0),
+                          ("report_state", ""), ("report_district", "")]:
+        if col not in merged.columns:
+            merged[col] = default
+    merged["channel"] = merged["channel"].fillna("web")
+    merged["details"] = merged["details"].fillna("")
+    merged["is_unlisted_project"] = merged["is_unlisted_project"].fillna(0)
+    merged["source_district"] = merged["district"].fillna(merged["report_district"])
+
     view = merged.sort_values("composite_score", ascending=False)[
-        ["report_id", "project_id", "complaint_type", "district", "mp_name", "status", "composite_score", "risk_band"]
+        ["report_id", "project_id", "complaint_type", "source_district", "mp_name", "status",
+         "composite_score", "risk_band", "channel", "is_unlisted_project", "details"]
     ].copy()
     view["risk_band"] = view["risk_band"].fillna("LOW").apply(risk_pill)
+    view["project_id"] = view.apply(
+        lambda r: f'{svg_icon("flag", size=13)} {r["project_id"]}' if r["is_unlisted_project"] else r["project_id"], axis=1,
+    )
+    view["channel"] = view["channel"].apply(
+        lambda c: f'{svg_icon("bot", size=14)} Chatbot' if c == "chatbot" else f'{svg_icon("globe", size=14)} Web form'
+    )
+    # escape=False below is needed so risk_pill()'s HTML badge renders — but
+    # that means "Details" (raw citizen-typed text, e.g. from the Citizen
+    # Chatbot) must be escaped by hand here first, or a "<" typed by a
+    # citizen would be treated as real HTML in an officer's browser.
+    view["details"] = view["details"].apply(lambda d: html.escape(d[:80] + "…") if len(d) > 80 else html.escape(d))
+    view = view.drop(columns=["is_unlisted_project"])
     view.columns = [t("col_report_id"), t("col_project_id"), t("col_complaint_type"), t("district"),
-                     t("col_mp_name"), t("status"), t("col_score"), t("risk")]
+                     t("col_mp_name"), t("status"), t("col_score"), t("risk"), "Channel", "Details"]
+    st.caption(":material/flag: next to a project id means it isn't a project already tracked in the system — "
+               "it was reported directly through the Citizen Chatbot and needs an officer to review it.")
     render_html_table(view.to_html(escape=False, index=False))

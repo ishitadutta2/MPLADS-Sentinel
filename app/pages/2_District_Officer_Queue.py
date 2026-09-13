@@ -16,13 +16,13 @@ from sentinel.db import insert_feedback, read_feedback
 from sentinel.audit.hash_chain import append_event
 from i18n import t, stage_label
 
-st.set_page_config(page_title="District Officer Queue — MPLADS Sentinel", page_icon="🗂️", layout="wide")
+st.set_page_config(page_title="District Officer Queue — MPLADS Sentinel", page_icon=":material/folder:", layout="wide")
 inject_base_style()
 user = require_login()
 show_user_badge()
 require_role(user, ["district_officer", "central_admin"])
 
-page_header("🗂️", t("district_title"), t("district_sub"))
+page_header("folder", t("district_title"), t("district_sub"))
 
 df = get_scored_dataset()
 if user["role"] == "district_officer":
@@ -52,7 +52,7 @@ reviewed_ids = set(feedback_df["project_id"]) if len(feedback_df) else set()
 
 for _, row in queue.head(30).iterrows():
     reviewed = row.project_id in reviewed_ids
-    header = f"{'✅ ' if reviewed else ''}{row.project_id} — {row.category} · {row.district} — {t('col_score')} {row.composite_score}"
+    header = f"{':material/check_circle: ' if reviewed else ''}{row.project_id} — {row.category} · {row.district} — {t('col_score')} {row.composite_score}"
     with st.expander(header):
         c1, c2 = st.columns([2, 1])
         with c1:

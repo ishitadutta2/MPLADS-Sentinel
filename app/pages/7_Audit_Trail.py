@@ -11,16 +11,16 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import pandas as pd
 import streamlit as st
 
-from common import inject_base_style, require_login, require_role, show_user_badge, page_header
+from common import inject_base_style, require_login, require_role, show_user_badge, page_header, render_html_table
 from sentinel.audit.hash_chain import read_chain, verify_chain
 from i18n import t
 
-st.set_page_config(page_title="Audit Trail — MPLADS Sentinel", page_icon="🔗", layout="wide")
+st.set_page_config(page_title="Audit Trail — MPLADS Sentinel", page_icon=":material/link:", layout="wide")
 inject_base_style()
 user = require_login()
 show_user_badge()
 require_role(user, ["district_officer", "central_admin"])
-page_header("🔗", t("audit_title"), t("audit_sub"))
+page_header("link", t("audit_title"), t("audit_sub"))
 
 entries = read_chain()
 is_valid, broken_at = verify_chain()
@@ -42,7 +42,12 @@ if entries:
     view["details"] = view["details"].apply(lambda d: str(d))
     view.columns = [t("col_timestamp"), t("col_event_type"), t("col_project_id"), t("col_actor"),
                      t("col_details"), t("col_entry_hash")]
-    st.dataframe(view.sort_values(t("col_timestamp"), ascending=False), width='stretch', hide_index=True)
+    view = view.sort_values(t("col_timestamp"), ascending=False)
+    # escape=True (default) here, unlike other tables in this app — the
+    # "Details" column can contain raw citizen-typed text (via the Citizen
+    # Chatbot), so it must be HTML-escaped rather than trusted like the
+    # risk_pill() markup other pages render into their tables.
+    render_html_table(view.to_html(index=False), max_height=520)
 else:
     st.info(t("no_audit_events_yet"))
 

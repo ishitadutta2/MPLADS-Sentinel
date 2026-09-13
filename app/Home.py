@@ -19,19 +19,30 @@ import streamlit as st
 from common import (
     get_scored_dataset, inject_base_style, risk_pill, RISK_COLORS, require_login,
     show_user_badge, scoped_query, apply_plot_theme, render_html_table, page_header,
+    get_palette, render_landing_gate,
 )
 from i18n import t
 
 st.set_page_config(
     page_title="MPLADS Sentinel — National Dashboard",
-    page_icon="🛡️",
+    page_icon=":material/shield:",
     layout="wide",
 )
 inject_base_style()
+
+# Front door: anyone arriving with no session yet picks a lane —
+# official sign-in (below, unchanged) or the no-login public Citizen
+# Chatbot — before ever seeing a login form. Once they've clicked
+# "Sign in" once (show_login_form) the usual require_login() form takes
+# over exactly as before.
+if st.session_state.get("user") is None and not st.session_state.get("show_login_form"):
+    render_landing_gate()
+    st.stop()
+
 user = require_login()
 show_user_badge()
 
-page_header("🛡️", t("home_title"), t("home_desc"))
+page_header("shield", t("home_title"), t("home_desc"))
 
 with st.spinner(t("scoring_spinner")):
     df = get_scored_dataset()
@@ -103,7 +114,7 @@ engine_labels = {
 avg_by_engine = df[engine_cols].mean().rename(index=engine_labels).reset_index()
 avg_by_engine.columns = [t("axis_engine"), t("axis_avg_score")]
 fig3 = px.bar(avg_by_engine, x=t("axis_avg_score"), y=t("axis_engine"), orientation="h", height=280)
-fig3.update_traces(marker_color="#1565c0")
+fig3.update_traces(marker_color=get_palette()["primary"])
 fig3 = apply_plot_theme(fig3)
 st.plotly_chart(fig3, width='stretch')
 

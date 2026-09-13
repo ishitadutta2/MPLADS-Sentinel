@@ -10,7 +10,12 @@ scipy>=1.11
 requests>=2.31        # used by sentinel/engines/reverse_image_search.py (inert without a GOOGLE_VISION_API_KEY — see that module's docstring)
 
 # --- Dashboard ---
-streamlit>=1.36
+# >=1.40 specifically: the app's icon system relies on Streamlit's
+# ":material/name:" shortcode rendering inline within markdown/labels
+# (buttons, tabs, alerts, chat avatars) — that support landed after 1.36,
+# so the previous floor here was actually too low for this UI to render
+# correctly. Verified working against 1.63.
+streamlit>=1.40
 plotly>=5.20
 
 # --- Dev / testing ---

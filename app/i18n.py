@@ -44,9 +44,20 @@ STRINGS = {
         "en": "Language", "hi": "भाषा", "bn": "ভাষা", "ta": "மொழி",
         "te": "భాష", "mr": "भाषा", "gu": "ભાષા",
     },
+    "notifications": {
+        "en": "Notifications", "hi": "सूचनाएँ", "bn": "বিজ্ঞপ্তি", "ta": "அறிவிப்புகள்",
+        "te": "నోటిఫికేషన్‌లు", "mr": "सूचना", "gu": "સૂચનાઓ",
+    },
+    "no_notifications": {
+        "en": "Nothing needs your attention right now.", "hi": "अभी आपके ध्यान देने योग्य कुछ नहीं है।",
+        "bn": "এই মুহূর্তে আপনার মনোযোগের প্রয়োজন এমন কিছু নেই।",
+        "ta": "இப்போது உங்கள் கவனம் தேவைப்படும் எதுவும் இல்லை.",
+        "te": "ప్రస్తుతం మీ దృష్టి అవసరమైనది ఏమీ లేదు.", "mr": "सध्या तुमच्या लक्षाची गरज असलेले काहीही नाही.",
+        "gu": "અત્યારે તમારું ધ્યાન જરૂરી હોય તેવું કંઈ નથી.",
+    },
     "log_out": {
-        "en": "↪ Log out", "hi": "↪ लॉग आउट", "bn": "↪ লগ আউট", "ta": "↪ வெளியேறு",
-        "te": "↪ లాగ్ అవుట్", "mr": "↪ लॉग आउट", "gu": "↪ લૉગ આઉટ",
+        "en": "Log out", "hi": "लॉग आउट", "bn": "লগ আউট", "ta": "வெளியேறு",
+        "te": "లాగ్ అవుట్", "mr": "लॉग आउट", "gu": "લૉગ આઉટ",
     },
     "mp_office": {
         "en": "MP Office", "hi": "सांसद कार्यालय", "bn": "সাংসদ কার্যালয়", "ta": "எம்.பி. அலுவலகம்",
@@ -88,8 +99,8 @@ STRINGS = {
         "te": "పాస్‌వర్డ్", "mr": "पासवर्ड", "gu": "પાસવર્ડ",
     },
     "sign_in_btn": {
-        "en": "Sign in →", "hi": "साइन इन करें →", "bn": "সাইন ইন করুন →", "ta": "உள்நுழையவும் →",
-        "te": "సైన్ ఇన్ →", "mr": "साइन इन करा →", "gu": "સાઇન ઇન કરો →",
+        "en": "Sign in", "hi": "साइन इन करें", "bn": "সাইন ইন করুন", "ta": "உள்நுழையவும்",
+        "te": "సైన్ ఇన్", "mr": "साइन इन करा", "gu": "સાઇન ઇન કરો",
     },
 
     # ---- page mastheads ----
@@ -491,22 +502,22 @@ STRINGS = {
         "gu": "સાંસદ ખાતા તરીકે લૉગ ઇન — ફક્ત {mp_id} સુધી મર્યાદિત.",
     },
     "flagged_warning": {
-        "en": "⚠️ {n} of this MP's projects are currently flagged HIGH or CRITICAL risk and warrant review.",
-        "hi": "⚠️ इस सांसद की {n} परियोजनाएँ वर्तमान में उच्च या अति-गंभीर जोखिम के रूप में चिह्नित हैं और समीक्षा योग्य हैं।",
-        "bn": "⚠️ এই সাংসদের {n}টি প্রকল্প বর্তমানে উচ্চ বা সংকটজনক ঝুঁকি হিসেবে চিহ্নিত এবং পর্যালোচনার যোগ্য।",
-        "ta": "⚠️ இந்த எம்.பி.யின் {n} திட்டங்கள் தற்போது உயர் அல்லது நெருக்கடி ஆபத்தாக குறியிடப்பட்டு மதிப்பாய்வு தேவைப்படுகிறது.",
-        "te": "⚠️ ఈ ఎంపీ యొక్క {n} ప్రాజెక్టులు ప్రస్తుతం అధిక లేదా క్రిటికల్ రిస్క్‌గా గుర్తించబడ్డాయి మరియు సమీక్ష అవసరం.",
-        "mr": "⚠️ या खासदाराचे {n} प्रकल्प सध्या उच्च किंवा गंभीर जोखीम म्हणून चिन्हांकित असून पुनरावलोकन आवश्यक आहे.",
-        "gu": "⚠️ આ સાંસદના {n} પ્રોજેક્ટ્સ હાલમાં ઉચ્ચ અથવા ગંભીર જોખમ તરીકે ચિહ્નિત છે અને સમીક્ષા જરૂરી છે.",
+        "en": ":material/warning: {n} of this MP's projects are currently flagged HIGH or CRITICAL risk and warrant review.",
+        "hi": ":material/warning: इस सांसद की {n} परियोजनाएँ वर्तमान में उच्च या अति-गंभीर जोखिम के रूप में चिह्नित हैं और समीक्षा योग्य हैं।",
+        "bn": ":material/warning: এই সাংসদের {n}টি প্রকল্প বর্তমানে উচ্চ বা সংকটজনক ঝুঁকি হিসেবে চিহ্নিত এবং পর্যালোচনার যোগ্য।",
+        "ta": ":material/warning: இந்த எம்.பி.யின் {n} திட்டங்கள் தற்போது உயர் அல்லது நெருக்கடி ஆபத்தாக குறியிடப்பட்டு மதிப்பாய்வு தேவைப்படுகிறது.",
+        "te": ":material/warning: ఈ ఎంపీ యొక్క {n} ప్రాజెక్టులు ప్రస్తుతం అధిక లేదా క్రిటికల్ రిస్క్‌గా గుర్తించబడ్డాయి మరియు సమీక్ష అవసరం.",
+        "mr": ":material/warning: या खासदाराचे {n} प्रकल्प सध्या उच्च किंवा गंभीर जोखीम म्हणून चिन्हांकित असून पुनरावलोकन आवश्यक आहे.",
+        "gu": ":material/warning: આ સાંસદના {n} પ્રોજેક્ટ્સ હાલમાં ઉચ્ચ અથવા ગંભીર જોખમ તરીકે ચિહ્નિત છે અને સમીક્ષા જરૂરી છે.",
     },
     "no_flagged_success": {
-        "en": "✅ No HIGH or CRITICAL risk projects currently flagged for this MP.",
-        "hi": "✅ इस सांसद के लिए वर्तमान में कोई उच्च या अति-गंभीर जोखिम परियोजना चिह्नित नहीं है।",
-        "bn": "✅ এই সাংসদের জন্য বর্তমানে কোনো উচ্চ বা সংকটজনক ঝুঁকির প্রকল্প চিহ্নিত নেই।",
-        "ta": "✅ இந்த எம்.பி.க்கு தற்போது உயர் அல்லது நெருக்கடி ஆபத்து திட்டங்கள் எதுவும் குறியிடப்படவில்லை.",
-        "te": "✅ ఈ ఎంపీ కోసం ప్రస్తుతం అధిక లేదా క్రిటికల్ రిస్క్ ప్రాజెక్టులు గుర్తించబడలేదు.",
-        "mr": "✅ या खासदारासाठी सध्या कोणतेही उच्च किंवा गंभीर जोखमीचे प्रकल्प चिन्हांकित नाहीत.",
-        "gu": "✅ આ સાંસદ માટે હાલમાં કોઈ ઉચ્ચ અથવા ગંભીર જોખમી પ્રોજેક્ટ ચિહ્નિત નથી.",
+        "en": ":material/check_circle: No HIGH or CRITICAL risk projects currently flagged for this MP.",
+        "hi": ":material/check_circle: इस सांसद के लिए वर्तमान में कोई उच्च या अति-गंभीर जोखिम परियोजना चिह्नित नहीं है।",
+        "bn": ":material/check_circle: এই সাংসদের জন্য বর্তমানে কোনো উচ্চ বা সংকটজনক ঝুঁকির প্রকল্প চিহ্নিত নেই।",
+        "ta": ":material/check_circle: இந்த எம்.பி.க்கு தற்போது உயர் அல்லது நெருக்கடி ஆபத்து திட்டங்கள் எதுவும் குறியிடப்படவில்லை.",
+        "te": ":material/check_circle: ఈ ఎంపీ కోసం ప్రస్తుతం అధిక లేదా క్రిటికల్ రిస్క్ ప్రాజెక్టులు గుర్తించబడలేదు.",
+        "mr": ":material/check_circle: या खासदारासाठी सध्या कोणतेही उच्च किंवा गंभीर जोखमीचे प्रकल्प चिन्हांकित नाहीत.",
+        "gu": ":material/check_circle: આ સાંસદ માટે હાલમાં કોઈ ઉચ્ચ અથવા ગંભીર જોખમી પ્રોજેક્ટ ચિહ્નિત નથી.",
     },
     "projects_by_status": {"en": "Projects by Status", "hi": "स्थिति के अनुसार परियोजनाएँ", "bn": "অবস্থা অনুযায়ী প্রকল্প",
                             "ta": "நிலை வாரியாக திட்டங்கள்", "te": "స్థితి వారీగా ప్రాజెక్టులు", "mr": "स्थितीनुसार प्रकल्प",
@@ -765,9 +776,9 @@ STRINGS = {
                    "bn": "এই প্রকল্পের জন্য ফাইলে কোনো ছবি নেই।", "ta": "இந்த திட்டத்திற்கு புகைப்படங்கள் எதுவும் இல்லை.",
                    "te": "ఈ ప్రాజెక్ట్ కోసం ఫైల్‌లో ఫోటోలు లేవు.", "mr": "या प्रकल्पासाठी फाइलमध्ये फोटो नाहीत.",
                    "gu": "આ પ્રોજેક્ટ માટે ફાઇલમાં કોઈ ફોટા નથી."},
-    "location_mismatch": {"en": "⚠️ Location mismatch", "hi": "⚠️ स्थान बेमेल", "bn": "⚠️ অবস্থান অমিল",
-                           "ta": "⚠️ இருப்பிடம் பொருந்தவில்லை", "te": "⚠️ లొకేషన్ సరిపోలలేదు", "mr": "⚠️ स्थान जुळत नाही",
-                           "gu": "⚠️ સ્થાન મેળ ખાતું નથી"},
+    "location_mismatch": {"en": ":material/warning: Location mismatch", "hi": ":material/warning: स्थान बेमेल", "bn": ":material/warning: অবস্থান অমিল",
+                           "ta": ":material/warning: இருப்பிடம் பொருந்தவில்லை", "te": ":material/warning: లొకేషన్ సరిపోలలేదు", "mr": ":material/warning: स्थान जुळत नाही",
+                           "gu": ":material/warning: સ્થાન મેળ ખાતું નથી"},
     "real_uploaded_evidence": {"en": "Real Uploaded Evidence", "hi": "वास्तविक अपलोड किया गया साक्ष्य",
                                 "bn": "প্রকৃত আপলোড করা প্রমাণ", "ta": "உண்மையான பதிவேற்றப்பட்ட ஆதாரம்",
                                 "te": "నిజమైన అప్‌లోడ్ చేసిన ఆధారం", "mr": "प्रत्यक्ष अपलोड केलेला पुरावा",
@@ -825,15 +836,15 @@ STRINGS = {
                             "bn": "ভিশন/জিও চেক চলছে...", "ta": "விஷன்/புவி சரிபார்ப்புகள் நடைபெறுகின்றன...",
                             "te": "విజన్/జియో తనిఖీలు జరుగుతున్నాయి...", "mr": "व्हिजन/भौगोलिक तपासणी सुरू आहे...",
                             "gu": "વિઝન/જિયો ચેક ચાલી રહ્યા છે..."},
-    "tab_flagged_evidence": {"en": "🚩 Flagged Evidence", "hi": "🚩 चिह्नित साक्ष्य", "bn": "🚩 চিহ্নিত প্রমাণ",
-                              "ta": "🚩 குறியிடப்பட்ட ஆதாரம்", "te": "🚩 ఫ్లాగ్ చేయబడిన ఆధారం", "mr": "🚩 चिन्हांकित पुरावा",
-                              "gu": "🚩 ચિહ્નિત પુરાવો"},
-    "tab_lookup_project": {"en": "🔎 Look Up Any Project", "hi": "🔎 कोई भी परियोजना खोजें", "bn": "🔎 যেকোনো প্রকল্প খুঁজুন",
-                            "ta": "🔎 எந்த திட்டத்தையும் தேடவும்", "te": "🔎 ఏదైనా ప్రాజెక్ట్‌ను శోధించండి",
-                            "mr": "🔎 कोणताही प्रकल्प शोधा", "gu": "🔎 કોઈપણ પ્રોજેક્ટ શોધો"},
-    "tab_upload_check": {"en": "📤 Upload & Check a Photo", "hi": "📤 फोटो अपलोड व जाँच करें", "bn": "📤 ছবি আপলোড ও পরীক্ষা করুন",
-                          "ta": "📤 புகைப்படத்தை பதிவேற்றி சரிபார்க்கவும்", "te": "📤 ఫోటోను అప్‌లోడ్ చేసి తనిఖీ చేయండి",
-                          "mr": "📤 फोटो अपलोड करा व तपासा", "gu": "📤 ફોટો અપલોડ કરો અને ચકાસો"},
+    "tab_flagged_evidence": {"en": ":material/flag: Flagged Evidence", "hi": ":material/flag: चिह्नित साक्ष्य", "bn": ":material/flag: চিহ্নিত প্রমাণ",
+                              "ta": ":material/flag: குறியிடப்பட்ட ஆதாரம்", "te": ":material/flag: ఫ్లాగ్ చేయబడిన ఆధారం", "mr": ":material/flag: चिन्हांकित पुरावा",
+                              "gu": ":material/flag: ચિહ્નિત પુરાવો"},
+    "tab_lookup_project": {"en": ":material/search: Look Up Any Project", "hi": ":material/search: कोई भी परियोजना खोजें", "bn": ":material/search: যেকোনো প্রকল্প খুঁজুন",
+                            "ta": ":material/search: எந்த திட்டத்தையும் தேடவும்", "te": ":material/search: ఏదైనా ప్రాజెక్ట్‌ను శోధించండి",
+                            "mr": ":material/search: कोणताही प्रकल्प शोधा", "gu": ":material/search: કોઈપણ પ્રોજેક્ટ શોધો"},
+    "tab_upload_check": {"en": ":material/upload: Upload & Check a Photo", "hi": ":material/upload: फोटो अपलोड व जाँच करें", "bn": ":material/upload: ছবি আপলোড ও পরীক্ষা করুন",
+                          "ta": ":material/upload: புகைப்படத்தை பதிவேற்றி சரிபார்க்கவும்", "te": ":material/upload: ఫోటోను అప్‌లోడ్ చేసి తనిఖీ చేయండి",
+                          "mr": ":material/upload: फोटो अपलोड करा व तपासा", "gu": ":material/upload: ફોટો અપલોડ કરો અને ચકાસો"},
     "kpi_photo_geo_issues": {"en": "Projects with Photo/Geo Issues", "hi": "फोटो/भौगोलिक समस्याओं वाली परियोजनाएँ",
                               "bn": "ছবি/জিও সমস্যাযুক্ত প্রকল্প", "ta": "புகைப்படம்/புவி பிரச்சினைகள் உள்ள திட்டங்கள்",
                               "te": "ఫోటో/జియో సమస్యలు ఉన్న ప్రాజెక్టులు", "mr": "फोटो/भौगोलिक समस्या असलेले प्रकल्प",
@@ -977,9 +988,9 @@ STRINGS = {
                          "te": "ఈ యాప్ ద్వారా ఈ ప్రాజెక్ట్ కోసం ఇంకా ఆధారం అప్‌లోడ్ చేయలేదు.",
                          "mr": "या अ‍ॅपद्वारे या प्रकल्पासाठी अद्याप पुरावा अपलोड केलेला नाही.",
                          "gu": "આ એપ દ્વારા આ પ્રોજેક્ટ માટે હજુ સુધી કોઈ પુરાવો અપલોડ થયો નથી."},
-    "delete_evidence_btn": {"en": "🗑️ Delete this evidence", "hi": "🗑️ इस साक्ष्य को हटाएँ", "bn": "🗑️ এই প্রমাণ মুছুন",
-                             "ta": "🗑️ இந்த ஆதாரத்தை நீக்கவும்", "te": "🗑️ ఈ ఆధారాన్ని తొలగించండి", "mr": "🗑️ हा पुरावा हटवा",
-                             "gu": "🗑️ આ પુરાવો કાઢી નાખો"},
+    "delete_evidence_btn": {"en": ":material/delete: Delete this evidence", "hi": ":material/delete: इस साक्ष्य को हटाएँ", "bn": ":material/delete: এই প্রমাণ মুছুন",
+                             "ta": ":material/delete: இந்த ஆதாரத்தை நீக்கவும்", "te": ":material/delete: ఈ ఆధారాన్ని తొలగించండి", "mr": ":material/delete: हा पुरावा हटवा",
+                             "gu": ":material/delete: આ પુરાવો કાઢી નાખો"},
 
     # ---- Contractor Network ----
     "kpi_contractors_tracked": {"en": "Contractors Tracked", "hi": "ट्रैक किए गए ठेकेदार", "bn": "ট্র্যাক করা ঠিকাদার",
@@ -1018,12 +1029,12 @@ STRINGS = {
                                  "gu": "આ ક્લસ્ટરને આપવામાં આવેલ કુલ મૂલ્ય"},
 
     # ---- Citizen Reporting ----
-    "tab_submit_report": {"en": "📝 Submit a Report", "hi": "📝 शिकायत सबमिट करें", "bn": "📝 রিপোর্ট জমা দিন",
-                           "ta": "📝 புகார் சமர்ப்பிக்கவும்", "te": "📝 ఫిర్యాదు సమర్పించండి", "mr": "📝 तक्रार सबमिट करा",
-                           "gu": "📝 ફરિયાદ સબમિટ કરો"},
-    "tab_reports_overview": {"en": "📊 Reports Overview", "hi": "📊 शिकायत अवलोकन", "bn": "📊 রিপোর্ট পর্যালোচনা",
-                              "ta": "📊 புகார்கள் மேலோட்டம்", "te": "📊 ఫిర్యాదుల అవలోకనం", "mr": "📊 तक्रार आढावा",
-                              "gu": "📊 ફરિયાદ ઝાંખી"},
+    "tab_submit_report": {"en": ":material/edit_note: Submit a Report", "hi": ":material/edit_note: शिकायत सबमिट करें", "bn": ":material/edit_note: রিপোর্ট জমা দিন",
+                           "ta": ":material/edit_note: புகார் சமர்ப்பிக்கவும்", "te": ":material/edit_note: ఫిర్యాదు సమర్పించండి", "mr": ":material/edit_note: तक्रार सबमिट करा",
+                           "gu": ":material/edit_note: ફરિયાદ સબમિટ કરો"},
+    "tab_reports_overview": {"en": ":material/bar_chart: Reports Overview", "hi": ":material/bar_chart: शिकायत अवलोकन", "bn": ":material/bar_chart: রিপোর্ট পর্যালোচনা",
+                              "ta": ":material/bar_chart: புகார்கள் மேலோட்டம்", "te": ":material/bar_chart: ఫిర్యాదుల అవలోకనం", "mr": ":material/bar_chart: तक्रार आढावा",
+                              "gu": ":material/bar_chart: ફરિયાદ ઝાંખી"},
     "report_submitted_success": {
         "en": "Report submitted and logged (Report ID: {id}). Thank you for helping keep public funds "
               "accountable. It now appears in the 'Reports Overview' tab.",
@@ -1122,21 +1133,21 @@ STRINGS = {
     "kpi_total_logged_events": {"en": "Total Logged Events", "hi": "कुल लॉग की गई घटनाएँ", "bn": "মোট লগ করা ইভেন্ট",
                                  "ta": "மொத்த பதிவு செய்யப்பட்ட நிகழ்வுகள்", "te": "మొత్తం లాగ్ చేయబడిన ఈవెంట్‌లు",
                                  "mr": "एकूण नोंदवलेल्या घटना", "gu": "કુલ લોગ થયેલ ઘટનાઓ"},
-    "chain_verified_success": {"en": "✅ Chain integrity verified — no tampering detected.",
-                                "hi": "✅ श्रृंखला की अखंडता सत्यापित — कोई छेड़छाड़ नहीं मिली।",
-                                "bn": "✅ চেইনের অখণ্ডতা যাচাই করা হয়েছে — কোনো কারচুপি সনাক্ত হয়নি।",
-                                "ta": "✅ சங்கிலி ஒருமைப்பாடு சரிபார்க்கப்பட்டது — சேதம் எதுவும் கண்டறியப்படவில்லை.",
-                                "te": "✅ చైన్ సమగ్రత ధృవీకరించబడింది — టాంపరింగ్ కనుగొనబడలేదు.",
-                                "mr": "✅ साखळीची अखंडता सत्यापित — कोणतीही छेडछाड आढळली नाही.",
-                                "gu": "✅ ચેઇન અખંડિતતા ચકાસાયેલ — કોઈ છેડછાડ મળી નથી."},
+    "chain_verified_success": {"en": ":material/check_circle: Chain integrity verified — no tampering detected.",
+                                "hi": ":material/check_circle: श्रृंखला की अखंडता सत्यापित — कोई छेड़छाड़ नहीं मिली।",
+                                "bn": ":material/check_circle: চেইনের অখণ্ডতা যাচাই করা হয়েছে — কোনো কারচুপি সনাক্ত হয়নি।",
+                                "ta": ":material/check_circle: சங்கிலி ஒருமைப்பாடு சரிபார்க்கப்பட்டது — சேதம் எதுவும் கண்டறியப்படவில்லை.",
+                                "te": ":material/check_circle: చైన్ సమగ్రత ధృవీకరించబడింది — టాంపరింగ్ కనుగొనబడలేదు.",
+                                "mr": ":material/check_circle: साखळीची अखंडता सत्यापित — कोणतीही छेडछाड आढळली नाही.",
+                                "gu": ":material/check_circle: ચેઇન અખંડિતતા ચકાસાયેલ — કોઈ છેડછાડ મળી નથી."},
     "chain_failed_error": {
-        "en": "⚠️ Chain integrity FAILED at entry #{n}. The log may have been tampered with.",
-        "hi": "⚠️ प्रविष्टि #{n} पर श्रृंखला की अखंडता विफल रही। लॉग के साथ छेड़छाड़ की गई हो सकती है।",
-        "bn": "⚠️ এন্ট্রি #{n}-এ চেইনের অখণ্ডতা ব্যর্থ হয়েছে। লগের সাথে কারচুপি করা হয়ে থাকতে পারে।",
-        "ta": "⚠️ பதிவு #{n} இல் சங்கிலி ஒருமைப்பாடு தோல்வியடைந்தது. பதிவேட்டில் சேதம் ஏற்பட்டிருக்கலாம்.",
-        "te": "⚠️ ఎంట్రీ #{n} వద్ద చైన్ సమగ్రత విఫలమైంది. లాగ్‌తో టాంపరింగ్ జరిగి ఉండవచ్చు.",
-        "mr": "⚠️ नोंद #{n} वर साखळीची अखंडता अयशस्वी झाली. लॉगमध्ये छेडछाड झाली असू शकते.",
-        "gu": "⚠️ એન્ટ્રી #{n} પર ચેઇન અખંડિતતા નિષ્ફળ થઈ. લોગ સાથે છેડછાડ થઈ હોઈ શકે છે.",
+        "en": ":material/warning: Chain integrity FAILED at entry #{n}. The log may have been tampered with.",
+        "hi": ":material/warning: प्रविष्टि #{n} पर श्रृंखला की अखंडता विफल रही। लॉग के साथ छेड़छाड़ की गई हो सकती है।",
+        "bn": ":material/warning: এন্ট্রি #{n}-এ চেইনের অখণ্ডতা ব্যর্থ হয়েছে। লগের সাথে কারচুপি করা হয়ে থাকতে পারে।",
+        "ta": ":material/warning: பதிவு #{n} இல் சங்கிலி ஒருமைப்பாடு தோல்வியடைந்தது. பதிவேட்டில் சேதம் ஏற்பட்டிருக்கலாம்.",
+        "te": ":material/warning: ఎంట్రీ #{n} వద్ద చైన్ సమగ్రత విఫలమైంది. లాగ్‌తో టాంపరింగ్ జరిగి ఉండవచ్చు.",
+        "mr": ":material/warning: नोंद #{n} वर साखळीची अखंडता अयशस्वी झाली. लॉगमध्ये छेडछाड झाली असू शकते.",
+        "gu": ":material/warning: એન્ટ્રી #{n} પર ચેઇન અખંડિતતા નિષ્ફળ થઈ. લોગ સાથે છેડછાડ થઈ હોઈ શકે છે.",
     },
     "no_audit_events_yet": {
         "en": "No events logged yet — run the scoring pipeline or submit an officer review to generate audit entries.",
@@ -1212,20 +1223,19 @@ def risk_label(band: str) -> str:
     return t(f"risk_{band}") if f"risk_{band}" in STRINGS else band
 
 
-def language_switcher_sidebar():
-    """Renders the 🌐 language selector in the sidebar. Called once from
-    common.theme_toggle_ui() — inside its `with st.sidebar.container():`
-    block — so it appears on the login screen and every logged-in page
-    without needing to be added to each page file. Uses the ambient `st`
-    (not `st.sidebar`) so it actually nests inside that container instead
-    of escaping it; see the "Sidebar scroll-split" comment in
-    common.py's CSS for why that nesting matters."""
+def language_switcher(compact: bool = False):
+    """Renders the :material/language: language selector. Uses the ambient `st`, so it
+    works wherever it's called from — a sidebar container or, as of the
+    header redesign, a column in the top header row. `compact=True`
+    hides the visible label (used in the header, where space is tight)
+    and relies on the help tooltip instead."""
     codes = list(LANGUAGES.keys())
     labels = list(LANGUAGES.values())
     current = get_lang()
     idx = codes.index(current) if current in codes else 0
     choice = st.selectbox(
-        f"🌐 {t('language')}", labels, index=idx, key="_lang_switch",
+        f":material/language: {t('language')}", labels, index=idx, key="_lang_switch",
+        label_visibility="collapsed" if compact else "visible",
         help="Translates this app's own screens. Data typed in by users (e.g. work descriptions) "
              "stays in whichever language it was entered in — same as the real eSAKSHI portal.",
     )

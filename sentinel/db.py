@@ -234,6 +234,75 @@ def load_csvs_into_db():
         # persist past a reload.
         conn.executescript(INDEX_SCHEMA)
 
+    # Runs on every startup (cheap — a handful of PRAGMA/ALTER checks) so
+    # the public Citizen Chatbot's extra columns exist from the first
+    # page load, not only after the first time someone actually submits
+    # a report through it.
+    ensure_citizen_report_columns()
+
+
+def ensure_citizen_report_columns():
+    """Adds the extra columns the public Citizen Chatbot needs
+    (free-text details, contact, self-reported location, channel, and
+    the "this project isn't in the system yet" flag/title/category)
+    to the existing `citizen_reports` table.
+
+    Uses ALTER TABLE ADD COLUMN one at a time rather than changing
+    SCHEMA's CREATE TABLE, because CREATE TABLE IF NOT EXISTS never
+    re-applies to a table (or a shipped data/sentinel.db file) that
+    already exists — this is the only way to add columns to a
+    database that was already built under the old schema without
+    losing the rows already in it. Each ALTER is wrapped so an
+    "already exists" error (from running this again on a DB that's
+    already been migrated) is ignored rather than raised."""
+    new_columns = {
+        "details": "TEXT",
+        "citizen_contact": "TEXT",
+        "report_state": "TEXT",
+        "report_district": "TEXT",
+        "category": "TEXT",
+        "unlisted_title": "TEXT",
+        "channel": "TEXT",
+        "is_unlisted_project": "INTEGER DEFAULT 0",
+    }
+    with get_conn() as conn:
+        existing_cols = {row[1] for row in conn.execute("PRAGMA table_info(citizen_reports)")}
+        for col, col_type in new_columns.items():
+            if col in existing_cols:
+                continue
+            try:
+                conn.execute(f"ALTER TABLE citizen_reports ADD COLUMN {col} {col_type}")
+            except sqlite3.OperationalError:
+                pass  # already added by a concurrent call — safe to ignore
+
+
+def next_report_id(prefix: str = "CIT") -> str:
+    """Generates a fresh, human-scannable id for a citizen report
+    submitted through the chatbot. Unlisted-project reports get a
+    visually distinct 'NEW-' prefix so officers can immediately tell,
+    just from the id, that this isn't a project already sanctioned and
+    tracked in the system."""
+    import datetime
+    stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d%H%M%S")
+    return f"{prefix}_{stamp}"
+
+
+def insert_citizen_report_full(record: dict):
+    """Inserts one citizen report with the full column set (used by the
+    public Citizen Chatbot). Falls back gracefully to only the columns
+    that exist on citizen_reports so this still works even if
+    ensure_citizen_report_columns() hasn't run yet in this process."""
+    ensure_citizen_report_columns()
+    with get_conn() as conn:
+        existing_cols = {row[1] for row in conn.execute("PRAGMA table_info(citizen_reports)")}
+        cols = [c for c in record.keys() if c in existing_cols]
+        values = [record[c] for c in cols]
+        placeholders = ", ".join("?" for _ in cols)
+        conn.execute(
+            f"INSERT INTO citizen_reports ({', '.join(cols)}) VALUES ({placeholders})",
+            values,
+        )
+
 
 def next_work_id() -> str:
     """Generates a fresh id for a user-recommended work, prefixed 'WRK-'

@@ -8,17 +8,17 @@ import streamlit as st
 import pandas as pd
 from PIL import Image
 
-from common import get_scored_dataset, get_raw_tables, inject_base_style, risk_pill, require_login, show_user_badge, page_header
+from common import get_scored_dataset, get_raw_tables, inject_base_style, risk_pill, require_login, show_user_badge, page_header, render_html_table
 from sentinel.config import PHOTO_DIR, UPLOADED_PHOTO_DIR
 from sentinel.utils.geo import haversine_meters
 from sentinel.db import read_uploaded_evidence
 from i18n import t
 
-st.set_page_config(page_title="Project Detail — MPLADS Sentinel", page_icon="🔍", layout="wide")
+st.set_page_config(page_title="Project Detail — MPLADS Sentinel", page_icon=":material/search:", layout="wide")
 inject_base_style()
 user = require_login()
 show_user_badge()
-page_header("🔍", t("project_title"))
+page_header("search", t("project_title"))
 
 df = get_scored_dataset()
 raw = get_raw_tables()
@@ -100,7 +100,7 @@ if not uploaded_evidence.empty:
             if erow["is_duplicate"]:
                 st.error(t("duplicate_of", photo_id=erow['duplicate_of_photo']))
             if erow["geo_source"] == "exif" and pd.notna(erow["geo_distance_m"]):
-                st.caption(f"{erow['geo_distance_m']:,.0f}m from site" + (" ⚠️" if erow["geo_fail"] else " ✓"))
+                st.caption(f"{erow['geo_distance_m']:,.0f}m from site" + (" :material/warning:" if erow["geo_fail"] else " :material/check:"))
             else:
                 st.caption(t("no_gps_metadata"))
 
@@ -115,7 +115,7 @@ else:
         "report_id": t("col_report_id"), "complaint_type": t("col_complaint_type"),
         "report_date": t("col_report_date"), "status": t("status"),
     })
-    st.dataframe(view_reports, width='stretch', hide_index=True)
+    render_html_table(view_reports.to_html(escape=False, index=False))
 
 st.divider()
 st.subheader(t("transaction_history"))
@@ -125,4 +125,5 @@ view_txns = proj_txns[["transaction_id", "installment_no", "amount", "txn_date"]
     "transaction_id": t("col_transaction_id"), "installment_no": t("col_installment"),
     "amount": t("col_amount"), "txn_date": t("col_txn_date"),
 })
-st.dataframe(view_txns, width='stretch', hide_index=True)
+view_txns[t("col_amount")] = view_txns[t("col_amount")].apply(lambda v: f"₹{v:,.0f}" if pd.notna(v) else "—")
+render_html_table(view_txns.to_html(escape=False, index=False))

@@ -31,11 +31,11 @@ from sentinel.db import insert_uploaded_evidence, read_uploaded_evidence, delete
 from sentinel.audit.hash_chain import append_event
 from i18n import t
 
-st.set_page_config(page_title="Photo Verification — MPLADS Sentinel", page_icon="📸", layout="wide")
+st.set_page_config(page_title="Photo Verification — MPLADS Sentinel", page_icon=":material/photo_camera:", layout="wide")
 inject_base_style()
 user = require_login()
 show_user_badge()
-page_header("📸", t("photo_title"), t("photo_sub"))
+page_header("camera", t("photo_title"), t("photo_sub"))
 
 df = get_scored_dataset()
 raw = get_raw_tables()
@@ -267,7 +267,7 @@ with tab3:
                         if erow["is_duplicate"]:
                             st.error(f"Duplicate of {erow['duplicate_of_photo']} (project {erow['duplicate_of_project']})")
                         if erow["geo_source"] == "exif":
-                            mismatch = " ⚠️ farther than tolerance" if erow["geo_fail"] else " ✓ within tolerance"
+                            mismatch = " :material/warning: farther than tolerance" if erow["geo_fail"] else " :material/check: within tolerance"
                             st.caption(f"GPS: {erow['geo_lat']:.5f}, {erow['geo_lon']:.5f} — {erow['geo_distance_m']:.0f} m from site{mismatch}")
                         else:
                             st.caption(t("no_gps_metadata"))

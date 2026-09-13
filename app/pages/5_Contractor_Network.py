@@ -15,15 +15,15 @@ import streamlit as st
 
 from common import (
     get_scored_dataset, get_raw_tables, inject_base_style, require_login, show_user_badge, apply_plot_theme,
-    get_contractor_graph, get_contractor_network_scores, page_header,
+    get_contractor_graph, get_contractor_network_scores, page_header, render_html_table, risk_pill,
 )
-from i18n import t, risk_label
+from i18n import t
 
-st.set_page_config(page_title="Contractor Network — MPLADS Sentinel", page_icon="🕸️", layout="wide")
+st.set_page_config(page_title="Contractor Network — MPLADS Sentinel", page_icon=":material/hub:", layout="wide")
 inject_base_style()
 user = require_login()
 show_user_badge()
-page_header("🕸️", t("contractor_title"), t("contractor_sub"))
+page_header("hub", t("contractor_title"), t("contractor_sub"))
 
 df = get_scored_dataset()
 raw = get_raw_tables()
@@ -62,7 +62,11 @@ else:
         edge_x += [x0, x1, None]
         edge_y += [y0, y1, None]
 
-    edge_trace = go.Scatter(x=edge_x, y=edge_y, line=dict(width=1.5, color="#888"), mode="lines", hoverinfo="none")
+    edge_trace = go.Scatter(
+        x=edge_x, y=edge_y,
+        line=dict(width=2, color="rgba(239, 68, 68, 0.55)"),
+        mode="lines", hoverinfo="none",
+    )
 
     node_x, node_y, node_text, node_size = [], [], [], []
     name_lookup = contractors.set_index("contractor_id")["contractor_name"].to_dict()
@@ -70,7 +74,7 @@ else:
         x, y = pos[node]
         node_x.append(x); node_y.append(y)
         deg = subG.degree(node)
-        node_size.append(18 + deg * 6)
+        node_size.append(20 + deg * 6)
         reasons = set()
         for _, _, edata in subG.edges(node, data=True):
             reasons |= edata.get("reasons", set())
@@ -78,10 +82,11 @@ else:
 
     node_trace = go.Scatter(
         x=node_x, y=node_y, mode="markers+text",
-        text=[name_lookup.get(n, n)[:18] for n in subG.nodes()],
+        text=[name_lookup.get(n, n)[:20] for n in subG.nodes()],
         textposition="top center",
+        textfont=dict(size=11, family="Inter, sans-serif"),
         hovertext=node_text, hoverinfo="text",
-        marker=dict(size=node_size, color="#c62828", line=dict(width=2, color="white")),
+        marker=dict(size=node_size, color="#EF4444", line=dict(width=2, color="#FFFFFF")),
     )
 
     fig = go.Figure(data=[edge_trace, node_trace])
@@ -99,16 +104,17 @@ else:
         "registration_address": t("col_registration_address"), "bank_account": t("col_bank_account"),
         "director_name": t("col_director_name"),
     })
-    st.dataframe(cluster_df, width='stretch', hide_index=True)
+    render_html_table(cluster_df.to_html(escape=False, index=False))
 
     st.markdown(f"**{t('projects_awarded_cluster')}**")
     cluster_projects = df[df["contractor_id"].isin(cluster_nodes)][
         ["project_id", "mp_name", "category", "sanctioned_amount", "composite_score", "risk_band"]
     ].sort_values("composite_score", ascending=False).copy()
-    cluster_projects["risk_band"] = cluster_projects["risk_band"].apply(risk_label)
+    total_awarded = cluster_projects["sanctioned_amount"].sum()
+    cluster_projects["risk_band"] = cluster_projects["risk_band"].apply(risk_pill)
     cluster_projects = cluster_projects.rename(columns={
         "project_id": t("col_project_id"), "mp_name": t("col_mp_name"), "category": t("category"),
         "sanctioned_amount": t("col_sanctioned_amount"), "composite_score": t("col_score"), "risk_band": t("risk"),
     })
-    st.dataframe(cluster_projects, width='stretch', hide_index=True)
-    st.metric(t("kpi_total_value_awarded"), f"₹{cluster_projects[t('col_sanctioned_amount')].sum():,.0f}")
+    render_html_table(cluster_projects.to_html(escape=False, index=False))
+    st.metric(t("kpi_total_value_awarded"), f"₹{total_awarded:,.0f}")

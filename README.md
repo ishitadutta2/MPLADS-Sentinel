@@ -166,7 +166,8 @@ a generic guess at it:
   snapshot; it's shown as-is rather than estimated.
 - **Every other page** (Home, MP Dashboard, District Officer Queue,
   Photo Verification, Contractor Network, Project Detail, Citizen
-  Reporting) runs on the **synthetic** dataset described above.
+  Reporting, Audit Trail, Work Tracker, Public Citizen Chatbot) runs on
+  the **synthetic** dataset described above.
   This split is deliberate: attaching fabricated fraud/risk scores to
   real, named, sitting Members of Parliament — even clearly-labelled
   synthetic ones — is not something this project does. The detection
@@ -225,7 +226,8 @@ subsequent navigation is instant.
 
 ### Demo login credentials
 
-Every page requires sign-in. Demo accounts are seeded automatically on
+Every officials-facing page requires sign-in (the Public Citizen Chatbot
+doesn't — see above). Demo accounts are seeded automatically on
 first launch and shown directly on the login screen — deliberately not
 hidden, since pretending this is production-hardened would be dishonest
 for a hackathon prototype:
@@ -241,6 +243,14 @@ return a completely different (and much smaller) set of projects — that
 restriction is enforced in `sentinel/auth.py::scoped_query()`, not just
 hidden in the UI; see `TestAuthAndRBAC` in the test suite.
 
+**Not every page requires sign-in.** The landing screen offers two
+lanes: *Official/Staff* (the sign-in above) or *Public/Citizen*, which
+drops straight into the Public Citizen Chatbot below with no account
+needed. Signed-in officials are turned back if they try to use the
+chatbot themselves (it's an independent public-reporting channel, not
+somewhere an MP office reports on its own projects) — see the section
+below.
+
 ## App tour
 
 | Page | Who it's for |
@@ -252,22 +262,43 @@ hidden in the UI; see `TestAuthAndRBAC` in the test suite.
 | **Project Detail** | Full deep-dive: timeline, photos, contractor, citizen reports *(synthetic data)* |
 | **Photo Verification** | Side-by-side evidence review for geo/visual flags *(synthetic data)* |
 | **Contractor Network** | Interactive graph of suspected cartel clusters *(synthetic data)* |
-| **Citizen Reporting** | Public complaint intake + correlation with risk scores *(synthetic data)* |
+| **Citizen Reporting** | Officer-facing view of complaints (both the original web form and the public chatbot below), correlated with risk scores *(synthetic data)* |
 | **Audit Trail** | Live hash-chain viewer with an integrity-verification button *(synthetic data)* |
-| **Work Tracker** | Writes, not just reads: MPs recommend new works, District Officers/Central Admin advance them through the real recommend → sanction → execute → pay → complete pipeline, live |
+| **Work Tracker** | Writes, not just reads: MPs recommend new work for any state/district (not only ones they already have projects in) via a dedicated *Work Recommendations* tab, District Officers/Central Admin advance it through the real recommend → sanction → execute → pay → complete pipeline, and every work's progress through that pipeline is shown as a live progress bar, not just a status word |
+| **Public Citizen Chatbot** | No sign-in required. A conversational flow for the public: report a problem against a real project (picked via state/district, then a searchable dropdown — not a wall of radio buttons, since a district can have 100+ projects) or flag something not in the system at all, which gets registered for an officer to triage. Signed-in officials are redirected away from this page — see above |
+
+### Design notes worth knowing
+
+- **No emoji anywhere in the UI** — every icon is either Streamlit's own
+  Material Symbols shortcode (`:material/name:`, used wherever Streamlit
+  renders plain text: buttons, tabs, alerts, chat avatars) or a small
+  hand-drawn inline SVG (`ICON_SVGS`/`svg_icon()` in `app/common.py`) for
+  the handful of places that build raw HTML directly, since that
+  shortcode isn't parsed inside `unsafe_allow_html` content.
+- **Light and dark themes**, toggled from the header, apply consistently
+  across every page — including native Streamlit widgets like
+  interactive tables, which don't follow custom CSS the way markdown does
+  and needed a different fix (rendered as themed HTML tables instead).
+- **Responsive down to mobile.** Column-based layouts (KPI rows, filter
+  rows) reflow onto multiple lines rather than squeezing — verified at
+  desktop, tablet, and phone widths, not just assumed from the CSS.
 
 ### Multi-language UI
 
 A 🌐 language switcher lives in the sidebar (English, हिन्दी, বাংলা, தமிழ்,
 తెలుగు, मराठी, ગુજરાતી — see `app/i18n.py`). It translates the app's own
 interface — navigation content, buttons, labels, chart axes, table
-headers — consistently across all nine pages. It deliberately does **not**
-translate: data people typed in (project descriptions, names — same as
-the real eSAKSHI portal wouldn't retranslate a citizen's own words), a
-few dense technical explainer asides (the eSAKSHI process writeup, the
-hash-chain internals), or Streamlit's own native sidebar page-nav labels
-(a platform limitation, not an oversight — those come from filenames and
-aren't restyleable without fragile DOM hacking this project avoids).
+headers — consistently across all eleven pages except the Public Citizen
+Chatbot, which is deliberately English-only for now (a translated
+conversational flow is future work, not faked here — see the docstring
+at the top of `app/pages/9_Public_Citizen_Chatbot.py`). It deliberately
+does **not** translate: data people typed in (project descriptions,
+names — same as the real eSAKSHI portal wouldn't retranslate a
+citizen's own words), a few dense technical explainer asides (the
+eSAKSHI process writeup, the hash-chain internals), or Streamlit's own
+native sidebar page-nav labels (a platform limitation, not an oversight
+— those come from filenames and aren't restyleable without fragile DOM
+hacking this project avoids).
 Translations are a solid first pass, not yet reviewed by native speakers
 of each language.
 
@@ -332,10 +363,11 @@ mplads_sentinel/
 │   │   └── esakshi_ingestion.py      # real eSAKSHI export ingestion (validated, idempotent)
 │   └── utils/geo.py            # Haversine distance
 ├── app/
-│   ├── Home.py                  # Streamlit entry point (login-gated)
-│   ├── common.py                # shared caching/styling/auth helpers
+│   ├── Home.py                  # Streamlit entry point (public landing gate + login-gated dashboard)
+│   ├── common.py                # shared caching/styling/auth/icon helpers
 │   ├── i18n.py                  # 7-language UI translation layer + language switcher
-│   └── pages/                   # the 9 dashboard pages, including Work Tracker (writes, not just reads)
+│   └── pages/                   # the 10 other pages — Work Tracker (writes, not reads) and the
+│                                 # no-login Public Citizen Chatbot among them
 ├── tests/test_engines.py       # full engine + auth + ingestion + audit-chain test suite (33 tests)
 └── requirements.txt
 ```

@@ -13,12 +13,12 @@ from common import (
 )
 from i18n import t, stage_label
 
-st.set_page_config(page_title="MP Dashboard — MPLADS Sentinel", page_icon="🧑‍💼", layout="wide")
+st.set_page_config(page_title="MP Dashboard — MPLADS Sentinel", page_icon=":material/badge:", layout="wide")
 inject_base_style()
 user = require_login()
 show_user_badge()
 
-page_header("🧑‍💼", t("mp_dash_title"), t("mp_dash_sub"))
+page_header("briefcase", t("mp_dash_title"), t("mp_dash_sub"))
 
 df = get_scored_dataset()
 
@@ -60,8 +60,12 @@ with col1:
     status_counts = mp_df["status"].value_counts().reset_index()
     status_counts.columns = ["status", "count"]
     status_counts["status"] = status_counts["status"].apply(stage_label)
-    fig = px.pie(status_counts, names="status", values="count", hole=0.45)
-    fig.update_layout(height=320)
+    fig = px.pie(
+        status_counts, names="status", values="count", hole=0.5,
+        color_discrete_sequence=["#0D9488", "#14B8A6", "#38BDF8", "#F59E0B", "#10B981"],
+    )
+    fig.update_traces(textposition='inside', textinfo='percent+label')
+    fig.update_layout(height=320, showlegend=False)
     fig = apply_plot_theme(fig)
     st.plotly_chart(fig, width='stretch')
 
